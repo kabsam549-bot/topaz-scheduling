@@ -23,7 +23,7 @@ function Pill({ active, onClick, children }) {
 }
 
 export default function InputPanel({ values, onChange, warnings = [] }) {
-  const [showMore, setShowMore] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const simSet = new Set(values.simDayPreference || []);
   const showBoostFx = values.boost === 'yes';
 
@@ -37,16 +37,44 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
   const warnFields = new Set(warnings.map((w) => w.field).filter(Boolean));
 
   return (
-    <div className="input-strip">
-      <div className="input-row primary-inputs">
-        <label className={`ifield${warnFields.has('chemoEndDate') ? ' warn' : ''}`}>
+    <aside className="input-sidebar">
+      {/* Chemotherapy */}
+      <div className="input-section">
+        <h3 className="section-header">Chemotherapy</h3>
+
+        <div className="ifield">
+          <span className="ifield-label">Neoadjuvant chemo</span>
+          <div className="pill-group">
+            <Pill active={values.neoadjuvantChemo} onClick={() => onChange('neoadjuvantChemo', true)}>Yes</Pill>
+            <Pill active={!values.neoadjuvantChemo} onClick={() => onChange('neoadjuvantChemo', false)}>No</Pill>
+          </div>
+        </div>
+
+        <div className="ifield">
+          <span className="ifield-label">Regimen</span>
+          <select
+            value={values.chemoRegimen}
+            onChange={(e) => onChange('chemoRegimen', e.target.value)}
+          >
+            {CHEMO_REGIMENS.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className={`ifield${warnFields.has('chemoEndDate') ? ' warn' : ''}`}>
           <span className="ifield-label">Last chemo date</span>
           <input
             type="date"
             value={values.chemoEndDate}
             onChange={(e) => onChange('chemoEndDate', e.target.value)}
           />
-        </label>
+        </div>
+      </div>
+
+      {/* Radiation */}
+      <div className="input-section">
+        <h3 className="section-header">Radiation</h3>
 
         <div className="ifield">
           <span className="ifield-label">Arm</span>
@@ -66,17 +94,9 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
           </div>
         </div>
 
-        <div className="ifield">
-          <span className="ifield-label">Location</span>
-          <div className="pill-group">
-            <Pill active={values.location === 'main'} onClick={() => onChange('location', 'main')}>Main</Pill>
-            <Pill active={values.location === 'hal'} onClick={() => onChange('location', 'hal')}>HAL</Pill>
-          </div>
-        </div>
-
         {showBoostFx && (
-          <label className="ifield ifield-sm">
-            <span className="ifield-label">Boost fx</span>
+          <div className="ifield">
+            <span className="ifield-label">Boost fractions</span>
             <select
               value={values.boostFractions}
               onChange={(e) => onChange('boostFractions', Number(e.target.value))}
@@ -85,100 +105,95 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
                 <option key={n} value={n}>{n}</option>
               ))}
             </select>
-          </label>
+          </div>
         )}
+
+        <div className="ifield">
+          <span className="ifield-label">Location</span>
+          <div className="pill-group">
+            <Pill active={values.location === 'main'} onClick={() => onChange('location', 'main')}>Main Campus</Pill>
+            <Pill active={values.location === 'hal'} onClick={() => onChange('location', 'hal')}>HAL</Pill>
+          </div>
+        </div>
+
+        <div className="ifield">
+          <span className="ifield-label">IBC cohort</span>
+          <div className="pill-group">
+            <Pill active={values.ibcCohort} onClick={() => onChange('ibcCohort', true)}>Yes</Pill>
+            <Pill active={!values.ibcCohort} onClick={() => onChange('ibcCohort', false)}>No</Pill>
+          </div>
+        </div>
+      </div>
+
+      {/* Settings */}
+      <div className="input-section">
+        <h3 className="section-header">Settings</h3>
+
+        <div className="ifield">
+          <span className="ifield-label">Preferred sim day</span>
+          <div className="pill-group">
+            {WEEKDAYS.map((d) => (
+              <Pill key={d} active={simSet.has(d)} onClick={() => toggleSimDay(d)}>
+                {d.slice(0, 2)}
+              </Pill>
+            ))}
+          </div>
+        </div>
+
+        <div className="ifield">
+          <span className="ifield-label">Break days</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={values.breakDays}
+            onChange={(e) => onChange('breakDays', Number(e.target.value))}
+          />
+        </div>
 
         <button
           type="button"
           className="more-btn"
-          onClick={() => setShowMore((v) => !v)}
-          title="More options"
+          onClick={() => setShowAdvanced((v) => !v)}
         >
-          {showMore ? '✕ Less' : '⚙ More'}
+          {showAdvanced ? 'Hide details' : 'Study ID & Notes'}
         </button>
+
+        {showAdvanced && (
+          <>
+            <div className="ifield" style={{ marginTop: '0.5rem' }}>
+              <span className="ifield-label">Study ID</span>
+              <input
+                type="text"
+                value={values.studyId}
+                onChange={(e) => onChange('studyId', e.target.value)}
+                placeholder="TOPAz-001"
+              />
+            </div>
+
+            <div className="ifield">
+              <span className="ifield-label">Notes</span>
+              <input
+                type="text"
+                value={values.notes}
+                onChange={(e) => onChange('notes', e.target.value)}
+                placeholder="Clinical context..."
+              />
+            </div>
+          </>
+        )}
       </div>
 
-      {showMore && (
-        <div className="input-row secondary-inputs">
-          <label className="ifield">
-            <span className="ifield-label">Neoadjuvant chemo?</span>
-            <div className="pill-group">
-              <Pill active={values.neoadjuvantChemo} onClick={() => onChange('neoadjuvantChemo', true)}>Yes</Pill>
-              <Pill active={!values.neoadjuvantChemo} onClick={() => onChange('neoadjuvantChemo', false)}>No</Pill>
-            </div>
-          </label>
-
-          <label className="ifield">
-            <span className="ifield-label">Regimen</span>
-            <select
-              value={values.chemoRegimen}
-              onChange={(e) => onChange('chemoRegimen', e.target.value)}
-            >
-              {CHEMO_REGIMENS.map((r) => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="ifield">
-            <span className="ifield-label">IBC cohort?</span>
-            <div className="pill-group">
-              <Pill active={values.ibcCohort} onClick={() => onChange('ibcCohort', true)}>Yes</Pill>
-              <Pill active={!values.ibcCohort} onClick={() => onChange('ibcCohort', false)}>No</Pill>
-            </div>
-          </label>
-
-          <div className="ifield">
-            <span className="ifield-label">Sim day</span>
-            <div className="pill-group">
-              {WEEKDAYS.map((d) => (
-                <Pill key={d} active={simSet.has(d)} onClick={() => toggleSimDay(d)}>
-                  {d.slice(0, 2)}
-                </Pill>
-              ))}
-            </div>
-          </div>
-
-          <label className="ifield ifield-sm">
-            <span className="ifield-label">Break days</span>
-            <input
-              type="number"
-              min={0}
-              step={1}
-              value={values.breakDays}
-              onChange={(e) => onChange('breakDays', Number(e.target.value))}
-            />
-          </label>
-
-          <label className="ifield">
-            <span className="ifield-label">Study ID</span>
-            <input
-              type="text"
-              value={values.studyId}
-              onChange={(e) => onChange('studyId', e.target.value)}
-              placeholder="TOPAz-001"
-            />
-          </label>
-
-          <label className="ifield ifield-wide">
-            <span className="ifield-label">Notes</span>
-            <input
-              type="text"
-              value={values.notes}
-              onChange={(e) => onChange('notes', e.target.value)}
-              placeholder="Clinical context..."
-            />
-          </label>
-        </div>
-      )}
-
+      {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="input-warnings">
-          {warnings.map((w, i) => (
-            <span key={i} className="input-warn-tag">⚠ {w.message}</span>
-          ))}
+        <div className="input-section">
+          <div className="input-warnings">
+            {warnings.map((w, i) => (
+              <span key={i} className="input-warn-tag">{w.message}</span>
+            ))}
+          </div>
         </div>
       )}
-    </div>
+    </aside>
   );
 }

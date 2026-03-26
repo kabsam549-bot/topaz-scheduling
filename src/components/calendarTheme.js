@@ -1,16 +1,16 @@
 /**
- * PRD §4.2 — calendar / scheduling palette
+ * PRD-inspired calendar palette -- enterprise medical professional theme
  */
 export const calendarTheme = {
   background: '#FFFFFF',
-  primary: '#C49B2A',
-  primaryDark: '#8B6914',
-  optimal: '#2E7D32',
-  acceptable: '#F9A825',
-  warning: '#C62828',
-  rt: '#C49B2A',
-  boost: '#D4A843',
-  target: '#2E7D32',
+  primary: '#1E40AF',
+  primaryDark: '#1E3A5F',
+  optimal: '#15803D',
+  acceptable: '#CA8A04',
+  warning: '#DC2626',
+  rt: '#3B82F6',
+  boost: '#6366F1',
+  target: '#15803D',
 };
 
 export const {

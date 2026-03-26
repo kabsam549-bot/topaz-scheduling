@@ -8,17 +8,17 @@ export default function TopBar({
     <header className="top-bar">
       <div className="top-bar-left">
         <h1 className="app-title">
-          <span className="title-gem">◆</span> TOPAz Scheduling Assistant
+          TOPAz Scheduling Assistant
         </h1>
         <span className="protocol-pill">Protocol v16</span>
       </div>
 
       <div className="top-bar-actions">
         <button type="button" className="action-btn" onClick={onImportClick} title="Import JSON">
-          ↑ Import
+          Import
         </button>
         <button type="button" className="action-btn" onClick={onExportJson} title="Export JSON">
-          ↓ JSON
+          JSON
         </button>
         <button
           type="button"

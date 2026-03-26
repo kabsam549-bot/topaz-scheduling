@@ -48,7 +48,6 @@ export default function App() {
       inputs: {
         neoadjuvantChemo: state.neoadjuvantChemo,
         chemoEndDate: state.chemoEndDate,
-        chemoRegimen: state.chemoRegimen,
         arm: state.arm,
         boost: state.boost,
         boostFractions: state.boostFractions,
@@ -149,8 +148,6 @@ export default function App() {
         disabledPdf={!view.primary}
       />
 
-      <InputPanel values={state} onChange={setField} warnings={warnings} />
-
       {computeError && (
         <div className="inline-error" role="alert">{computeError}</div>
       )}
@@ -158,37 +155,41 @@ export default function App() {
         <div className="inline-error" role="alert">{importError}</div>
       )}
 
-      <div id="topaz-export-root" className="main-content">
-        {state.studyId && (
-          <div className="export-meta">
-            <p><strong>Study ID:</strong> {state.studyId}</p>
-          </div>
-        )}
+      <div className="main-layout">
+        <InputPanel values={state} onChange={setField} warnings={warnings} />
 
-        <CalendarView
-          primary={view.primary}
-          secondary={view.secondary}
-          labels={view.labels}
-          displayToggles={showScenarioToggles ? displayToggles : null}
-          onDisplayChange={showScenarioToggles ? (k, v) => setDisplayToggle(k, v) : null}
-          onMilestoneDrag={handleMilestoneDrag}
-        />
+        <div id="topaz-export-root" className="main-content">
+          {state.studyId && (
+            <div className="export-meta">
+              <p><strong>Study ID:</strong> {state.studyId}</p>
+            </div>
+          )}
 
-        <Legend />
-
-        <div className="below-calendar">
-          <Assumptions />
-
-          <SummaryTable
+          <CalendarView
             primary={view.primary}
             secondary={view.secondary}
             labels={view.labels}
+            displayToggles={showScenarioToggles ? displayToggles : null}
+            onDisplayChange={showScenarioToggles ? (k, v) => setDisplayToggle(k, v) : null}
+            onMilestoneDrag={handleMilestoneDrag}
           />
-        </div>
 
-        <p className="export-disclaimer">
-          Suggested dates only — verify against protocol.
-        </p>
+          <Legend />
+
+          <div className="below-calendar">
+            <Assumptions />
+
+            <SummaryTable
+              primary={view.primary}
+              secondary={view.secondary}
+              labels={view.labels}
+            />
+          </div>
+
+          <p className="export-disclaimer">
+            Suggested dates only -- verify against protocol.
+          </p>
+        </div>
       </div>
     </div>
   );
