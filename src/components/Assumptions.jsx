@@ -9,7 +9,7 @@ const DEFAULTS = [
   { label: 'RT fractions (CF)', value: '25 weekday fractions (~5 weeks)' },
   { label: 'Boost fractions', value: '5–8 additional weekday fractions, sequential' },
   { label: 'Surgery acceptable window', value: 'Days 10–35 post last fraction (§4.3.4)' },
-  { label: 'Surgery optimal window', value: 'Days 16–25 post last fraction (surgeon pref.)' },
+  { label: 'Surgery optimal window', value: 'Days 16–25 post last fraction (surgeon pref., PRD §4.2)' },
   { label: 'Surgery target', value: 'Day 21, snapped to weekday' },
   { label: 'Pre-MRT deadline', value: 'Must start within 8 weeks of chemo completion (§4.3.3)' },
   { label: 'Excluded days', value: 'Weekends + US federal holidays (configurable)' },

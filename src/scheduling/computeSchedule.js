@@ -152,8 +152,8 @@ function surgeryFromLastFraction(lastFraction) {
       end: addDays(lastFraction, 35),
     },
     optimal: {
-      start: addDays(lastFraction, 17),
-      end: addDays(lastFraction, 26),
+      start: addDays(lastFraction, 16),
+      end: addDays(lastFraction, 25),
     },
     target: snapSurgeryTarget(addDays(lastFraction, 21)),
   };
@@ -395,9 +395,32 @@ export function computeSchedule(inputs) {
     };
   }
 
+  // Per-arm overlap (boost vs no-boost within the same arm) — matches PRD Section 9
+  const perArmOverlap = {};
+  for (const a of armsToRun) {
+    const armScenarios = scenarios.filter((s) => s.arm === a);
+    if (armScenarios.length > 1) {
+      perArmOverlap[a] = {
+        surgeryAcceptable: intersectInclusiveRanges(
+          armScenarios.map((s) => ({
+            start: s.milestones.surgeryAcceptableStart,
+            end: s.milestones.surgeryAcceptableEnd,
+          }))
+        ),
+        surgeryOptimal: intersectInclusiveRanges(
+          armScenarios.map((s) => ({
+            start: s.milestones.surgeryOptimalStart,
+            end: s.milestones.surgeryOptimalEnd,
+          }))
+        ),
+      };
+    }
+  }
+
   return {
     scenarios,
     overlap,
+    perArmOverlap,
     warnings,
   };
 }

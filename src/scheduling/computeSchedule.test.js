@@ -70,21 +70,21 @@ describe('computeSchedule — PRD §9 worked example', () => {
     const yes = scenarios.find((s) => s.id === 'hf-withBoost');
     expect(iso(no.milestones.surgeryAcceptableStart)).toBe('2026-06-01');
     expect(iso(no.milestones.surgeryAcceptableEnd)).toBe('2026-06-26');
-    expect(iso(no.milestones.surgeryOptimalStart)).toBe('2026-06-08');
-    expect(iso(no.milestones.surgeryOptimalEnd)).toBe('2026-06-17');
+    expect(iso(no.milestones.surgeryOptimalStart)).toBe('2026-06-07');
+    expect(iso(no.milestones.surgeryOptimalEnd)).toBe('2026-06-16');
     expect(iso(no.milestones.surgeryTarget)).toBe('2026-06-12');
 
     expect(iso(yes.milestones.surgeryAcceptableStart)).toBe('2026-06-08');
     expect(iso(yes.milestones.surgeryAcceptableEnd)).toBe('2026-07-03');
-    expect(iso(yes.milestones.surgeryOptimalStart)).toBe('2026-06-15');
-    expect(iso(yes.milestones.surgeryOptimalEnd)).toBe('2026-06-24');
+    expect(iso(yes.milestones.surgeryOptimalStart)).toBe('2026-06-14');
+    expect(iso(yes.milestones.surgeryOptimalEnd)).toBe('2026-06-23');
     expect(iso(yes.milestones.surgeryTarget)).toBe('2026-06-19');
 
     expect(overlap).not.toBeNull();
     expect(iso(overlap.surgeryAcceptable.start)).toBe('2026-06-08');
     expect(iso(overlap.surgeryAcceptable.end)).toBe('2026-06-26');
-    expect(iso(overlap.surgeryOptimal.start)).toBe('2026-06-15');
-    expect(iso(overlap.surgeryOptimal.end)).toBe('2026-06-17');
+    expect(iso(overlap.surgeryOptimal.start)).toBe('2026-06-14');
+    expect(iso(overlap.surgeryOptimal.end)).toBe('2026-06-16');
   });
 
   it('without Memorial override, last boost lands on next treatment day after holiday', () => {

@@ -133,7 +133,12 @@ export default function App() {
     state.arm === 'not_randomized' || state.boost === 'uncertain';
 
   if (showLanding) {
-    return <LandingPage onStart={() => setShowLanding(false)} />;
+    return (
+      <LandingPage
+        onStart={() => setShowLanding(false)}
+        onImport={() => { setShowLanding(false); setTimeout(() => fileInputRef.current?.click(), 100); }}
+      />
+    );
   }
 
   return (
@@ -152,6 +157,7 @@ export default function App() {
         onExportJson={onExportJson}
         onExportPdf={onExportPdf}
         disabledPdf={!view.primary}
+        onBack={() => setShowLanding(true)}
       />
 
       {computeError && (
