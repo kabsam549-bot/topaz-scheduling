@@ -24,6 +24,7 @@ function Pill({ active, onClick, children }) {
 
 export default function InputPanel({ values, onChange, warnings = [] }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const simSet = new Set(values.simDayPreference || []);
   const showBoostFx = values.boost === 'yes';
 
@@ -37,7 +38,14 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
   const warnFields = new Set(warnings.map((w) => w.field).filter(Boolean));
 
   return (
-    <aside className="input-sidebar">
+    <aside className={`input-sidebar${mobileCollapsed ? ' collapsed' : ''}`}>
+      <button
+        type="button"
+        className="sidebar-toggle"
+        onClick={() => setMobileCollapsed((v) => !v)}
+      >
+        {mobileCollapsed ? 'Show Inputs' : 'Hide Inputs'}
+      </button>
       {/* Chemotherapy */}
       <div className="input-section">
         <h3 className="section-header">Chemotherapy</h3>

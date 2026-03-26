@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import LandingPage from './components/LandingPage.jsx';
 import TopBar from './components/TopBar.jsx';
 import InputPanel from './components/InputPanel.jsx';
 import CalendarView from './components/CalendarView.jsx';
@@ -23,6 +24,7 @@ function formatStamp() {
 export default function App() {
   const fileInputRef = useRef(null);
   const [importError, setImportError] = useState(null);
+  const [showLanding, setShowLanding] = useState(true);
 
   const {
     state,
@@ -129,6 +131,10 @@ export default function App() {
 
   const showScenarioToggles =
     state.arm === 'not_randomized' || state.boost === 'uncertain';
+
+  if (showLanding) {
+    return <LandingPage onStart={() => setShowLanding(false)} />;
+  }
 
   return (
     <div className="app-shell">
