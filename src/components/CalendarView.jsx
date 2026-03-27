@@ -312,11 +312,11 @@ function DayCell({
     >
       <span className={`cal-num${isToday ? ' cal-num-today' : ''}`}>{format(day, 'd')}</span>
       {milestones.length > 0 && (
-        <div className="cal-events">
+        <div className="cal-markers">
           {milestones.map((m, i) => (
             <span
               key={i}
-              className={`cal-tag tag-${m.field}${m.draggable ? ' draggable' : ''}`}
+              className={`cal-marker marker-${m.field}${m.draggable ? ' draggable' : ''}`}
               draggable={m.draggable}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';
@@ -324,10 +324,8 @@ function DayCell({
                 onDragStart(m.field);
               }}
               onDragEnd={onDragEnd}
-              title={m.draggable ? `Drag to reschedule` : m.code}
-            >
-              {m.code}
-            </span>
+              title={m.code}
+            />
           ))}
         </div>
       )}
