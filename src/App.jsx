@@ -7,7 +7,6 @@ import InputPanel from './components/InputPanel.jsx';
 import CalendarView from './components/CalendarView.jsx';
 import SummaryTable from './components/SummaryTable.jsx';
 import Legend from './components/Legend.jsx';
-import Assumptions from './components/Assumptions.jsx';
 import { useTopazSchedule } from './hooks/useTopazSchedule.js';
 import {
   buildArmsAndBoostScenarios,
@@ -181,19 +180,11 @@ export default function App() {
 
           <Legend />
 
-          <div className="below-calendar">
-            <Assumptions />
-
-            <SummaryTable
-              primary={view.primary}
-              secondary={view.secondary}
-              labels={view.labels}
-            />
-          </div>
-
-          <p className="export-disclaimer">
-            Suggested dates only -- verify against protocol.
-          </p>
+          <SummaryTable
+            primary={view.primary}
+            secondary={view.secondary}
+            labels={view.labels}
+          />
         </div>
       </div>
     </div>

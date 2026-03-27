@@ -131,6 +131,7 @@ export default function CalendarView({
     : startOfMonth(new Date());
 
   const [viewMonths, setViewMonths] = useState(3);
+  const viewOptions = [1, 2, 3];
   const [navMonth, setNavMonth] = useState(null);
   const baseMonth = navMonth || autoMonth;
 
@@ -178,20 +179,16 @@ export default function CalendarView({
 
         <div className="cal-controls">
           <div className="seg-group">
-            <button
-              type="button"
-              className={`seg-btn${viewMonths === 1 ? ' active' : ''}`}
-              onClick={() => setViewMonths(1)}
-            >
-              1 Mo
-            </button>
-            <button
-              type="button"
-              className={`seg-btn${viewMonths === 3 ? ' active' : ''}`}
-              onClick={() => setViewMonths(3)}
-            >
-              3 Mo
-            </button>
+            {viewOptions.map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`seg-btn${viewMonths === n ? ' active' : ''}`}
+                onClick={() => setViewMonths(n)}
+              >
+                {n} Mo
+              </button>
+            ))}
           </div>
         </div>
       </div>

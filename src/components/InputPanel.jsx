@@ -46,6 +46,7 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
       >
         {mobileCollapsed ? 'Show Inputs' : 'Hide Inputs'}
       </button>
+
       {/* Chemotherapy */}
       <div className="input-section">
         <h3 className="section-header">Chemotherapy</h3>
@@ -123,14 +124,6 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
             <Pill active={values.location === 'hal'} onClick={() => onChange('location', 'hal')}>HAL</Pill>
           </div>
         </div>
-
-        <div className="ifield">
-          <span className="ifield-label">IBC cohort</span>
-          <div className="pill-group">
-            <Pill active={values.ibcCohort} onClick={() => onChange('ibcCohort', true)}>Yes</Pill>
-            <Pill active={!values.ibcCohort} onClick={() => onChange('ibcCohort', false)}>No</Pill>
-          </div>
-        </div>
       </div>
 
       {/* Settings */}
@@ -169,7 +162,7 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
 
         {showAdvanced && (
           <>
-            <div className="ifield" style={{ marginTop: '0.5rem' }}>
+            <div className="ifield" style={{ marginTop: '0.625rem' }}>
               <span className="ifield-label">Study ID</span>
               <input
                 type="text"
