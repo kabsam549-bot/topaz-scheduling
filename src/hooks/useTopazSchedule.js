@@ -26,6 +26,7 @@ export const DEFAULT_FORM_STATE = {
   breakDays: 0,
   studyId: '',
   notes: '',
+  chemoStartDate: '',
   simDate: null,
   rtStartDate: null,
 };

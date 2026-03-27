@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { REGIMEN_DATA, calculateLastChemoDate } from '../scheduling/regimenData.js';
 
 const CHEMO_REGIMENS = [
   'dd-AC + wkly Taxol',
@@ -63,12 +64,46 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
           <span className="ifield-label">Regimen</span>
           <select
             value={values.chemoRegimen}
-            onChange={(e) => onChange('chemoRegimen', e.target.value)}
+            onChange={(e) => {
+              const regimen = e.target.value;
+              onChange('chemoRegimen', regimen);
+              // Recalculate last chemo if start date exists
+              if (values.chemoStartDate && regimen !== 'Other' && REGIMEN_DATA[regimen]) {
+                try {
+                  const result = calculateLastChemoDate(values.chemoStartDate, regimen);
+                  onChange('chemoEndDate', result.lastDate);
+                } catch {}
+              }
+            }}
           >
             {CHEMO_REGIMENS.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
+        </div>
+
+        <div className="ifield">
+          <span className="ifield-label">First chemo date <span className="ifield-optional">(optional)</span></span>
+          <input
+            type="date"
+            value={values.chemoStartDate || ''}
+            onChange={(e) => {
+              const startDate = e.target.value;
+              onChange('chemoStartDate', startDate);
+              // Auto-calculate last chemo date if regimen is known
+              if (startDate && values.chemoRegimen && values.chemoRegimen !== 'Other') {
+                try {
+                  const result = calculateLastChemoDate(startDate, values.chemoRegimen);
+                  onChange('chemoEndDate', result.lastDate);
+                } catch {}
+              }
+            }}
+          />
+          {values.chemoStartDate && values.chemoRegimen && values.chemoRegimen !== 'Other' && REGIMEN_DATA[values.chemoRegimen] && (
+            <span className="ifield-hint">
+              {REGIMEN_DATA[values.chemoRegimen].totalDurationWeeks} weeks total
+            </span>
+          )}
         </div>
 
         <div className={`ifield${warnFields.has('chemoEndDate') ? ' warn' : ''}`}>
