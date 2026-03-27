@@ -62,8 +62,19 @@ function getStatus(key, computed) {
       return computed.surgeryWindowAcceptable?.start ? 'ok' : 'pending';
     case 'surgeryWindowOptimal':
       return computed.surgeryWindowOptimal?.start ? 'ok' : 'pending';
-    case 'surgeryTarget':
-      return computed.surgeryTarget ? 'ok' : 'pending';
+    case 'surgeryTarget': {
+      if (!computed.surgeryTarget) return 'pending';
+      const target = computed.surgeryTarget;
+      const acc = computed.surgeryWindowAcceptable;
+      if (acc && acc.start && acc.end) {
+        if (target < acc.start || target > acc.end) return 'error';
+      }
+      const opt = computed.surgeryWindowOptimal;
+      if (opt && opt.start && opt.end) {
+        if (target < opt.start || target > opt.end) return 'warn';
+      }
+      return 'ok';
+    }
     default:
       return 'pending';
   }
@@ -146,6 +157,16 @@ function getSubtext(key, computed) {
       const base = fmtDate(computed.rtEndDate);
       const boost = fmtDate(computed.rtEndDateWithBoost);
       if (boost && boost !== base) return `Base ends: ${base}`;
+      return null;
+    }
+    case 'surgeryTarget': {
+      const target = computed.surgeryTarget;
+      const acc = computed.surgeryWindowAcceptable;
+      const opt = computed.surgeryWindowOptimal;
+      if (!target) return null;
+      if (acc && (target < acc.start || target > acc.end)) return 'Outside acceptable window';
+      if (opt && (target >= opt.start && target <= opt.end)) return 'Within optimal window';
+      if (acc && (target >= acc.start && target <= acc.end)) return 'Within acceptable window';
       return null;
     }
     default:

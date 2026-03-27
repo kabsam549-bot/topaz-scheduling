@@ -59,20 +59,14 @@ export function useTopazSchedule(closureDates) {
 
   const handleMilestoneDrag = useCallback((field, dateStr) => {
     setState((prev) => {
-      const chemoEnd = prev.chemoEndDate || null;
-      const simDate = prev.simDate || null;
-
       if (field === 'simDate') {
-        // Cannot drag sim before chemo end
-        if (chemoEnd && dateStr < chemoEnd) return prev;
+        // Allow any date -- timeline will show warnings/errors
         return { ...prev, simDate: dateStr, rtStartDate: null };
       } else if (field === 'rtStartDate') {
-        // Cannot drag RT start before sim
-        const effectiveSim = simDate || (chemoEnd ? null : null);
-        if (effectiveSim && dateStr <= effectiveSim) return prev;
-        if (chemoEnd && dateStr <= chemoEnd) return prev;
+        // Allow any date -- timeline shows compliance status
         return { ...prev, rtStartDate: dateStr };
       } else if (field === 'surgeryTarget') {
+        // Allow dragging surgery to any date -- timeline shows if it's in window
         return { ...prev, surgeryTargetOverride: dateStr };
       }
       return prev;

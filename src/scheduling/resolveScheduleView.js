@@ -64,6 +64,11 @@ export function exportComputedForInputs(result, values) {
   return scenarioToComputed(findScenario(result, arm, withBoost));
 }
 
+function applySurgeryOverride(computed, overrideDate) {
+  if (!computed || !overrideDate) return computed;
+  return { ...computed, surgeryTarget: overrideDate };
+}
+
 export function resolveScheduleView(result, values, toggles = {}) {
   if (!result?.scenarios?.length) {
     return { primary: null, secondary: null, labels: [] };
@@ -104,7 +109,7 @@ export function resolveScheduleView(result, values, toggles = {}) {
     }
 
     return {
-      primary: primaryComputed,
+      primary: applySurgeryOverride(primaryComputed, values.surgeryTargetOverride),
       secondary: noBoostComputed,
       labels: ['With boost', 'No boost'],
     };
@@ -116,8 +121,8 @@ export function resolveScheduleView(result, values, toggles = {}) {
     const p = findScenario(result, 'HF', useBoost);
     const q = findScenario(result, 'CF', useBoost);
     return {
-      primary: scenarioToComputed(p),
-      secondary: scenarioToComputed(q),
+      primary: applySurgeryOverride(scenarioToComputed(p), values.surgeryTargetOverride),
+      secondary: applySurgeryOverride(scenarioToComputed(q), values.surgeryTargetOverride),
       labels: [
         `HF (15 fx)${useBoost ? ', boost' : ''}`,
         `CF (25 fx)${useBoost ? ', boost' : ''}`,
@@ -128,7 +133,7 @@ export function resolveScheduleView(result, values, toggles = {}) {
   const useBoost = values.boost === 'yes';
   const single = findScenario(result, effectiveArm, useBoost);
   return {
-    primary: scenarioToComputed(single),
+    primary: applySurgeryOverride(scenarioToComputed(single), values.surgeryTargetOverride),
     secondary: null,
     labels: [],
   };
