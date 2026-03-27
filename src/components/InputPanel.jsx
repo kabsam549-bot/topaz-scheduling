@@ -230,6 +230,29 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
           </div>
         </div>
       )}
+
+      <div className="input-section">
+        <button
+          type="button"
+          className="reset-btn"
+          onClick={() => {
+            onChange('chemoEndDate', '');
+            onChange('chemoStartDate', '');
+            onChange('chemoRegimen', 'dd-AC + wkly Taxol');
+            onChange('neoadjuvantChemo', true);
+            onChange('arm', 'not_randomized');
+            onChange('boost', 'uncertain');
+            onChange('boostFractions', 5);
+            onChange('location', 'hal');
+            onChange('simDayPreference', ['Wednesday']);
+            onChange('breakDays', 0);
+            onChange('studyId', '');
+            onChange('notes', '');
+          }}
+        >
+          Reset All
+        </button>
+      </div>
     </aside>
   );
 }

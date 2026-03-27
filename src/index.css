@@ -237,6 +237,20 @@ body { margin: 0; min-height: 100vh; }
 }
 .more-btn:hover { background: var(--primary-light); color: var(--primary); }
 
+.reset-btn {
+  width: 100%;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.reset-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
 .input-warnings { display: flex; flex-direction: column; gap: 0.35rem; }
 .input-warn-tag {
   font-size: 0.72rem;
