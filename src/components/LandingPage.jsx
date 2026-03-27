@@ -2,10 +2,9 @@ export default function LandingPage({ onStart }) {
   return (
     <div className="landing">
       <div className="landing-card">
-        <div className="landing-badge">Protocol #2022-0880 v16</div>
         <h1 className="landing-title">TOPAz Scheduling Assistant</h1>
         <p className="landing-subtitle">
-          Multidisciplinary treatment scheduling for preoperative radiation therapy
+          Treatment scheduling for preoperative radiation therapy
           followed by mastectomy with immediate autologous breast reconstruction.
         </p>
 
@@ -50,7 +49,6 @@ export default function LandingPage({ onStart }) {
         </button>
 
         <div className="landing-footer">
-          <p>MD Anderson Cancer Center</p>
           <p>Deterministic, rule-based logic. No AI. No PHI stored.</p>
         </div>
       </div>

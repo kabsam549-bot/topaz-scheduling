@@ -15,7 +15,6 @@ import {
 } from './scheduling';
 
 const TOOL_VERSION = '1.0.0';
-const PROTOCOL_VERSION = 'v16';
 
 function formatStamp() {
   return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
@@ -43,7 +42,6 @@ export default function App() {
     const snap = result ? buildArmsAndBoostScenarios(result) : null;
     return {
       toolVersion: TOOL_VERSION,
-      protocolVersion: PROTOCOL_VERSION,
       exportTimestamp: new Date().toISOString(),
       studyId: state.studyId,
       notes: state.notes,
@@ -129,14 +127,10 @@ export default function App() {
     }
   };
 
-  const showScenarioToggles =
-    state.arm === 'not_randomized' || state.boost === 'uncertain';
-
   if (showLanding) {
     return (
       <LandingPage
         onStart={() => setShowLanding(false)}
-        onImport={() => { setShowLanding(false); setTimeout(() => fileInputRef.current?.click(), 100); }}
       />
     );
   }
@@ -181,8 +175,7 @@ export default function App() {
             primary={view.primary}
             secondary={view.secondary}
             labels={view.labels}
-            displayToggles={showScenarioToggles ? displayToggles : null}
-            onDisplayChange={showScenarioToggles ? (k, v) => setDisplayToggle(k, v) : null}
+            chemoEndDate={state.chemoEndDate}
             onMilestoneDrag={handleMilestoneDrag}
           />
 

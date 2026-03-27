@@ -13,10 +13,7 @@ export default function TopBar({
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
         )}
-        <h1 className="app-title">
-          TOPAz Scheduling Assistant
-        </h1>
-        <span className="protocol-pill">Protocol v16</span>
+        <h1 className="app-title">TOPAz</h1>
       </div>
 
       <div className="top-bar-actions">

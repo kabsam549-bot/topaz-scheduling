@@ -75,8 +75,15 @@ function cellClasses(day, layers, hasSecondary) {
   return cls.join(' ');
 }
 
-function getMilestoneInfo(day, primary, secondary) {
+function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
   const hits = [];
+
+  // Check chemo end date
+  const chemoD = parseD(chemoEndDate);
+  if (chemoD && isSameDay(day, chemoD)) {
+    hits.push({ field: 'chemoEnd', name: 'Last Chemo', label: '', draggable: false });
+  }
+
   const check = (c, label) => {
     if (!c) return;
     for (const [field, name] of Object.entries(DRAGGABLE_MILESTONES)) {
@@ -99,14 +106,13 @@ export default function CalendarView({
   primary,
   secondary,
   labels = [],
-  displayToggles,
-  onDisplayChange,
+  chemoEndDate,
   onMilestoneDrag,
 }) {
   const layers = useMemo(() => buildLayers(primary, secondary), [primary, secondary]);
 
   const anchors = useMemo(() => {
-    return [
+    const dates = [
       primary?.simDate,
       primary?.rtStartDate,
       primary?.rtEndDate,
@@ -114,8 +120,11 @@ export default function CalendarView({
       primary?.surgeryWindowAcceptable?.end,
       secondary?.rtEndDateWithBoost,
       secondary?.surgeryWindowAcceptable?.end,
-    ].map(parseD).filter(Boolean);
-  }, [primary, secondary]);
+    ];
+    // Include chemo end date as an anchor so calendar starts earlier
+    if (chemoEndDate) dates.push(chemoEndDate);
+    return dates.map(parseD).filter(Boolean);
+  }, [primary, secondary, chemoEndDate]);
 
   const autoMonth = anchors.length > 0
     ? startOfMonth(anchors.reduce((a, b) => (a < b ? a : b), anchors[0]))
@@ -153,69 +162,35 @@ export default function CalendarView({
 
   const handleDragEnd = useCallback(() => setDragField(null), []);
 
-  const showArmToggles = displayToggles && onDisplayChange;
-
   return (
     <div className="calendar-panel" id="topaz-calendar-export">
       <div className="cal-toolbar">
         <div className="cal-nav">
-          <button type="button" className="cal-nav-btn" onClick={prev}>‹</button>
+          <button type="button" className="cal-nav-btn" onClick={prev}>&#8249;</button>
           <span className="cal-nav-label">
             {viewMonths === 1
               ? format(baseMonth, 'MMMM yyyy')
-              : `${format(months[0], 'MMM yyyy')} – ${format(months[months.length - 1], 'MMM yyyy')}`}
+              : `${format(months[0], 'MMM yyyy')} \u2013 ${format(months[months.length - 1], 'MMM yyyy')}`}
           </span>
-          <button type="button" className="cal-nav-btn" onClick={next}>›</button>
+          <button type="button" className="cal-nav-btn" onClick={next}>&#8250;</button>
           <button type="button" className="cal-nav-btn cal-today-btn" onClick={today}>Today</button>
         </div>
 
         <div className="cal-controls">
-          {showArmToggles && (
-            <>
-              <div className="seg-group" role="group" aria-label="Arm display">
-                {['HF', 'CF', 'both'].map((k) => (
-                  <button
-                    key={k}
-                    type="button"
-                    className={`seg-btn${displayToggles.arm === k ? ' active' : ''}`}
-                    onClick={() => onDisplayChange('arm', k)}
-                  >
-                    {k === 'both' ? 'Both' : k}
-                  </button>
-                ))}
-              </div>
-              <div className="seg-group" role="group" aria-label="Boost display">
-                {[
-                  { k: 'yes', l: 'Boost' },
-                  { k: 'no', l: 'No Boost' },
-                  { k: 'both', l: 'Both' },
-                ].map(({ k, l }) => (
-                  <button
-                    key={k}
-                    type="button"
-                    className={`seg-btn${displayToggles.boost === k ? ' active' : ''}`}
-                    onClick={() => onDisplayChange('boost', k)}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
           <div className="seg-group">
             <button
               type="button"
               className={`seg-btn${viewMonths === 1 ? ' active' : ''}`}
               onClick={() => setViewMonths(1)}
             >
-              1 Month
+              1 Mo
             </button>
             <button
               type="button"
               className={`seg-btn${viewMonths === 3 ? ' active' : ''}`}
               onClick={() => setViewMonths(3)}
             >
-              3 Months
+              3 Mo
             </button>
           </div>
         </div>
@@ -223,7 +198,7 @@ export default function CalendarView({
 
       {!primary && (
         <div className="cal-empty">
-          <p>Enter a last chemo date to see the treatment timeline.</p>
+          Enter a last chemo date to see the treatment timeline.
         </div>
       )}
 
@@ -236,6 +211,7 @@ export default function CalendarView({
               layers={layers}
               primary={primary}
               secondary={secondary}
+              chemoEndDate={chemoEndDate}
               hasSecondary={!!secondary}
               onDragStart={handleDragStart}
               onDrop={handleDrop}
@@ -250,7 +226,7 @@ export default function CalendarView({
 }
 
 function MonthGrid({
-  monthStart, layers, primary, secondary, hasSecondary,
+  monthStart, layers, primary, secondary, chemoEndDate, hasSecondary,
   onDragStart, onDrop, onDragEnd, isDragging,
 }) {
   const start = startOfMonth(monthStart);
@@ -278,6 +254,7 @@ function MonthGrid({
               layers={layers}
               primary={primary}
               secondary={secondary}
+              chemoEndDate={chemoEndDate}
               hasSecondary={hasSecondary}
               onDragStart={onDragStart}
               onDrop={onDrop}
@@ -294,15 +271,14 @@ function MonthGrid({
 }
 
 function DayCell({
-  day, layers, primary, secondary, hasSecondary,
+  day, layers, primary, secondary, chemoEndDate, hasSecondary,
   onDragStart, onDrop, onDragEnd, isDragging,
 }) {
   const we = isWeekend(day);
   const cls = cellClasses(day, layers, hasSecondary);
-  const milestones = getMilestoneInfo(day, primary, secondary);
+  const milestones = getMilestoneInfo(day, primary, secondary, chemoEndDate);
   const isTarget = milestones.some((m) => m.field === 'surgeryTarget');
-  const hasDraggable = milestones.some((m) => m.draggable);
-  const milestoneNames = milestones.map((m) => m.name);
+  const isChemoEnd = milestones.some((m) => m.field === 'chemoEnd');
 
   const handleDragOver = (e) => {
     if (isDragging && !we) {
@@ -311,16 +287,26 @@ function DayCell({
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDropEvt = (e) => {
     e.preventDefault();
     onDrop(day);
   };
 
+  const isToday = isSameDay(day, new Date());
+
   return (
     <div
-      className={`day-cell${we ? ' weekend' : ''}${cls ? ` ${cls}` : ''}${isTarget ? ' cell-target' : ''}${isDragging && !we ? ' drop-target' : ''}`}
+      className={[
+        'day-cell',
+        we && 'weekend',
+        cls,
+        isTarget && 'cell-target',
+        isChemoEnd && 'cell-chemo-end',
+        isToday && 'cell-today',
+        isDragging && !we && 'drop-target',
+      ].filter(Boolean).join(' ')}
       onDragOver={handleDragOver}
-      onDrop={handleDrop}
+      onDrop={handleDropEvt}
     >
       <span className="day-num">{format(day, 'd')}</span>
       {milestones.length > 0 && (
@@ -328,7 +314,7 @@ function DayCell({
           {milestones.map((m, i) => (
             <span
               key={i}
-              className={`mtag${m.draggable ? ' draggable' : ''}`}
+              className={`mtag${m.draggable ? ' draggable' : ''}${m.field === 'chemoEnd' ? ' mtag-chemo' : ''}`}
               draggable={m.draggable}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';

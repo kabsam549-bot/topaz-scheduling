@@ -1,10 +1,11 @@
 const ITEMS = [
+  { cls: 'swatch-chemo', label: 'Last chemo day' },
   { cls: 'swatch-rt', label: 'Radiation (base)' },
   { cls: 'swatch-boost', label: 'Boost fractions' },
-  { cls: 'swatch-acceptable', label: 'Surgery acceptable (days 10–35)' },
-  { cls: 'swatch-optimal', label: 'Surgery optimal (days 16–25)' },
+  { cls: 'swatch-acceptable', label: 'Surgery acceptable (days 10-35)' },
+  { cls: 'swatch-optimal', label: 'Surgery optimal (days 16-25)' },
   { cls: 'swatch-target', label: 'Target surgery (day 21)' },
-  { cls: 'swatch-milestone', label: 'Milestone (SIM / dry run)' },
+  { cls: 'swatch-milestone', label: 'Milestone' },
 ];
 
 export default function Legend() {
