@@ -69,26 +69,50 @@ export function resolveScheduleView(result, values, toggles = {}) {
     return { primary: null, secondary: null, labels: [] };
   }
 
-  const armView = toggles.arm ?? 'HF';
-  const boostView = toggles.boost ?? 'yes';
-
-  let useBoost = values.boost === 'yes';
-  if (values.boost === 'no') useBoost = false;
-  if (values.boost === 'uncertain') {
-    if (boostView === 'yes') useBoost = true;
-    else if (boostView === 'no') useBoost = false;
-  }
-
   const effectiveArm =
     values.arm === 'HF' || values.arm === 'CF'
       ? values.arm
-      : armView === 'CF'
-        ? 'CF'
-        : armView === 'HF'
-          ? 'HF'
-          : 'HF';
+      : 'HF';
 
-  if (values.arm === 'not_randomized' && armView === 'both') {
+  // When boost is uncertain, show the WITH-boost scenario as primary
+  // (conservative: plans for longer RT) but use the per-arm overlap
+  // for surgery windows so the scheduled date works either way
+  if (values.boost === 'uncertain') {
+    const noBoost = findScenario(result, effectiveArm, false);
+    const withBoost = findScenario(result, effectiveArm, true);
+    const primaryComputed = scenarioToComputed(withBoost);
+    const noBoostComputed = scenarioToComputed(noBoost);
+
+    // Calculate overlap windows
+    if (primaryComputed && noBoostComputed) {
+      const overlapAccStart = noBoostComputed.surgeryWindowAcceptable?.start > primaryComputed.surgeryWindowAcceptable?.start
+        ? noBoostComputed.surgeryWindowAcceptable.start : primaryComputed.surgeryWindowAcceptable?.start;
+      const overlapAccEnd = noBoostComputed.surgeryWindowAcceptable?.end < primaryComputed.surgeryWindowAcceptable?.end
+        ? noBoostComputed.surgeryWindowAcceptable.end : primaryComputed.surgeryWindowAcceptable?.end;
+      const overlapOptStart = noBoostComputed.surgeryWindowOptimal?.start > primaryComputed.surgeryWindowOptimal?.start
+        ? noBoostComputed.surgeryWindowOptimal.start : primaryComputed.surgeryWindowOptimal?.start;
+      const overlapOptEnd = noBoostComputed.surgeryWindowOptimal?.end < primaryComputed.surgeryWindowOptimal?.end
+        ? noBoostComputed.surgeryWindowOptimal.end : primaryComputed.surgeryWindowOptimal?.end;
+
+      // Override primary's surgery windows with the overlap
+      if (overlapAccStart <= overlapAccEnd) {
+        primaryComputed.surgeryWindowAcceptable = { start: overlapAccStart, end: overlapAccEnd };
+      }
+      if (overlapOptStart <= overlapOptEnd) {
+        primaryComputed.surgeryWindowOptimal = { start: overlapOptStart, end: overlapOptEnd };
+      }
+    }
+
+    return {
+      primary: primaryComputed,
+      secondary: noBoostComputed,
+      labels: ['With boost', 'No boost'],
+    };
+  }
+
+  // Not randomized: show both arms
+  if (values.arm === 'not_randomized') {
+    const useBoost = values.boost === 'yes';
     const p = findScenario(result, 'HF', useBoost);
     const q = findScenario(result, 'CF', useBoost);
     return {
@@ -101,16 +125,7 @@ export function resolveScheduleView(result, values, toggles = {}) {
     };
   }
 
-  if (values.boost === 'uncertain' && boostView === 'both') {
-    const p = findScenario(result, effectiveArm, false);
-    const q = findScenario(result, effectiveArm, true);
-    return {
-      primary: scenarioToComputed(p),
-      secondary: scenarioToComputed(q),
-      labels: ['No boost', 'With boost'],
-    };
-  }
-
+  const useBoost = values.boost === 'yes';
   const single = findScenario(result, effectiveArm, useBoost);
   return {
     primary: scenarioToComputed(single),

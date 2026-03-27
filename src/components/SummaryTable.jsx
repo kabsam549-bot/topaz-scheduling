@@ -26,6 +26,9 @@ function getStatus(key, computed) {
   if (!computed) return 'pending';
 
   switch (key) {
+    case 'chemoStart':
+      return computed.lastChemoDate ? 'ok' : 'pending';
+
     case 'lastChemoDate':
       return computed.lastChemoDate ? 'ok' : 'pending';
 
@@ -48,12 +51,10 @@ function getStatus(key, computed) {
     }
 
     case 'rtStartDate': {
-      const chemo = parseD(computed.lastChemoDate);
       const sim = parseD(computed.simDate);
       const rt = parseD(computed.rtStartDate);
       if (!rt) return 'pending';
       if (sim && differenceInCalendarDays(rt, sim) < 1) return 'error';
-      if (chemo && differenceInCalendarDays(rt, chemo) > 56) return 'warn';
       if (sim) {
         const planGap = differenceInCalendarDays(rt, sim);
         if (planGap < 7 || planGap > 14) return 'warn';
@@ -91,18 +92,22 @@ function StatusDot({ status }) {
 }
 
 const MILESTONES = [
-  { key: 'lastChemoDate', label: 'Chemotherapy', icon: 'chemo' },
-  { key: 'simDate', label: 'CT Simulation', icon: 'sim' },
-  { key: 'dryRunDate', label: 'Dry Run', icon: 'dry' },
-  { key: 'rtStartDate', label: 'RT Day 1', icon: 'rt' },
-  { key: 'rtEndDate', label: 'Last Fraction', icon: 'rt' },
-  { key: 'surgeryWindowAcceptable', label: 'Acceptable Window', icon: 'window' },
-  { key: 'surgeryWindowOptimal', label: 'Optimal Window', icon: 'window' },
-  { key: 'surgeryTarget', label: 'Target Surgery', icon: 'surgery' },
+  { key: 'chemoStart', label: 'Chemo Start' },
+  { key: 'lastChemoDate', label: 'Chemo End' },
+  { key: 'simDate', label: 'CT Simulation' },
+  { key: 'dryRunDate', label: 'Dry Run' },
+  { key: 'rtStartDate', label: 'RT Start' },
+  { key: 'rtEndDate', label: 'Last RT Fraction' },
+  { key: 'surgeryWindowAcceptable', label: 'Acceptable Surgical Window' },
+  { key: 'surgeryWindowOptimal', label: 'Optimal Surgical Window' },
+  { key: 'surgeryTarget', label: 'Ideal Target Surgery Date' },
 ];
 
-function getValue(computed, key) {
+function getValue(computed, key, chemoStartDate) {
   if (!computed) return '\u2014';
+  if (key === 'chemoStart') {
+    return chemoStartDate ? fmtDate(chemoStartDate) : '\u2014';
+  }
   if (key === 'surgeryWindowOptimal' || key === 'surgeryWindowAcceptable') {
     return fmtWindow(computed[key]) || '\u2014';
   }
@@ -123,7 +128,7 @@ function getSubtext(key, computed) {
       const sim = parseD(computed.simDate);
       if (chemo && sim) {
         const gap = differenceInCalendarDays(sim, chemo);
-        return `${gap}d after chemo`;
+        return `${gap}d after chemo end`;
       }
       return null;
     }
@@ -132,14 +137,14 @@ function getSubtext(key, computed) {
       const rt = parseD(computed.rtStartDate);
       if (sim && rt) {
         const gap = differenceInCalendarDays(rt, sim);
-        return `${gap}d after sim`;
+        return `${gap}d planning gap`;
       }
       return null;
     }
     case 'rtEndDate': {
       const base = fmtDate(computed.rtEndDate);
       const boost = fmtDate(computed.rtEndDateWithBoost);
-      if (boost && boost !== base) return `Base: ${base}`;
+      if (boost && boost !== base) return `Base ends: ${base}`;
       return null;
     }
     default:
@@ -147,16 +152,16 @@ function getSubtext(key, computed) {
   }
 }
 
-export default function SummaryTable({ primary, secondary, labels = [], warnings = [] }) {
+export default function SummaryTable({ primary, secondary, labels = [], warnings = [], chemoStartDate = '' }) {
   return (
     <div className="tl-wrap">
       <h2 className="panel-heading">Treatment Timeline</h2>
       {!primary && <p className="muted">No computed milestones yet.</p>}
       {primary && (
         <div className="tl-list">
-          {MILESTONES.map(({ key, label, icon }, idx) => {
+          {MILESTONES.map(({ key, label }, idx) => {
             const status = getStatus(key, primary);
-            const value = getValue(primary, key);
+            const value = getValue(primary, key, chemoStartDate);
             const subtext = getSubtext(key, primary);
             const isLast = idx === MILESTONES.length - 1;
 

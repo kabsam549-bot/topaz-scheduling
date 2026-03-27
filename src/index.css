@@ -457,23 +457,26 @@ body { margin: 0; min-height: 100vh; }
 /* Drop target */
 .cal-day.droppable:not(.we) { outline: 2px dashed var(--primary); outline-offset: -2px; cursor: copy; }
 
-/* ── Event tags (short codes, compact) ── */
+/* ── Event tags ── */
 .cal-events {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 2px;
+  margin-top: 2px;
 }
 
 .cal-tag {
   display: inline-block;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  padding: 0 4px;
-  border-radius: 3px;
-  line-height: 1.5;
+  padding: 1px 6px;
+  border-radius: 4px;
+  line-height: 1.55;
   white-space: nowrap;
   user-select: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  text-align: center;
 }
 
 .cal-tag.draggable { cursor: grab; }
@@ -530,26 +533,27 @@ body { margin: 0; min-height: 100vh; }
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
 }
 
 .tl-row {
   display: flex;
   align-items: stretch;
-  padding: 0 1.125rem;
+  padding: 0 1rem;
+  min-height: 2.75rem;
 }
 
-.tl-row.tl-error .tl-content { background: rgba(220,38,38,0.04); }
-.tl-row.tl-warn .tl-content { background: rgba(217,119,6,0.04); }
+.tl-row.tl-error .tl-content { background: rgba(220,38,38,0.04); border-radius: var(--radius); }
+.tl-row.tl-warn .tl-content { background: rgba(217,119,6,0.04); border-radius: var(--radius); }
 
 /* Vertical timeline indicator */
 .tl-indicator {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 20px;
+  width: 24px;
   flex-shrink: 0;
-  padding-top: 0.875rem;
+  position: relative;
 }
 
 .tl-dot {
@@ -557,26 +561,24 @@ body { margin: 0; min-height: 100vh; }
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-top: 0.75rem;
+  z-index: 1;
+  box-shadow: 0 0 0 3px var(--bg);
 }
 
 .tl-line {
   width: 2px;
   flex: 1;
-  background: var(--border-light);
-  margin-top: 4px;
+  background: #e5e7eb;
+  margin-top: 2px;
 }
 
 /* Content */
 .tl-content {
   flex: 1;
   min-width: 0;
-  padding: 0.625rem 0 0.625rem 0.875rem;
-  border-bottom: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  margin-bottom: 2px;
+  padding: 0.5rem 0 0.5rem 0.75rem;
 }
-
-.tl-row:last-child .tl-content { border-bottom: none; }
 
 .tl-top {
   display: flex;
@@ -600,7 +602,7 @@ body { margin: 0; min-height: 100vh; }
 }
 
 .tl-sub {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--muted);
   margin-top: 0.1rem;
 }

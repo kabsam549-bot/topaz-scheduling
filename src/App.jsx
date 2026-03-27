@@ -202,6 +202,7 @@ export default function App() {
             secondary={view.secondary}
             labels={view.labels}
             warnings={warnings}
+            chemoStartDate={state.chemoStartDate}
           />
         </div>
       </div>
