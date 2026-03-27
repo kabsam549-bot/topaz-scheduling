@@ -1,26 +1,26 @@
 /* ───────── Variables ───────── */
 :root {
   --bg: #ffffff;
-  --surface: #f9fafb;
-  --primary: #2563eb;
-  --primary-light: #eff6ff;
-  --primary-dark: #1e3a5f;
-  --primary-border: #bfdbfe;
-  --optimal: #16a34a;
-  --optimal-bg: #dcfce7;
-  --acceptable: #ca8a04;
-  --acceptable-bg: #fef9c3;
+  --surface: #faf8f9;
+  --primary: #be185d;
+  --primary-light: #fdf2f8;
+  --primary-dark: #831843;
+  --primary-border: #fbcfe8;
+  --optimal: #be185d;
+  --optimal-bg: rgba(190,24,93,0.06);
+  --acceptable: #d97706;
+  --acceptable-bg: rgba(217,119,6,0.06);
   --warning: #dc2626;
   --warning-bg: #fef2f2;
-  --rt-bg: #dbeafe;
+  --rt-bg: rgba(59,130,246,0.08);
   --rt-border: #3b82f6;
-  --boost-bg: #e0e7ff;
+  --boost-bg: rgba(99,102,241,0.08);
   --boost-border: #818cf8;
-  --target-bg: #16a34a;
-  --target-fg: #fff;
-  --chemo-bg: #fce7f3;
-  --chemo-border: #ec4899;
-  --milestone-bg: #475569;
+  --target-bg: rgba(190,24,93,0.12);
+  --target-fg: var(--primary);
+  --chemo-bg: rgba(168,85,247,0.08);
+  --chemo-border: #a855f7;
+  --milestone-bg: #64748b;
   --border: #e5e7eb;
   --border-light: #f3f4f6;
   --muted: #6b7280;
@@ -71,7 +71,7 @@ body { margin: 0; min-height: 100vh; }
 .header-logo {
   width: 32px;
   height: 32px;
-  background: var(--primary);
+  background: #be185d;
   color: #fff;
   border-radius: 8px;
   display: flex;
@@ -365,54 +365,33 @@ body { margin: 0; min-height: 100vh; }
   font-size: 0.88rem;
 }
 
-/* Month grid */
-.cal-months {
+/* Month grid -- always stacked vertically */
+.cal-months, .cal-months-stack {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 0.5rem;
-}
-
-.cal-months-1 .cal-month {
-  max-width: 100%;
-}
-
-.cal-months-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.cal-months-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  padding: 0;
 }
 
 .cal-month {
-  background: var(--bg);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--border-light);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border-bottom: 1px solid var(--border);
 }
-
-.cal-months-1 .cal-month { border: none; box-shadow: none; }
+.cal-month:last-child { border-bottom: none; }
 
 .cal-month-name {
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 1rem;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text);
   text-align: center;
-  letter-spacing: 0.01em;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .cal-dow {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -421,30 +400,28 @@ body { margin: 0; min-height: 100vh; }
   font-weight: 600;
   color: var(--muted);
   letter-spacing: 0.04em;
-  padding: 0.25rem 0;
+  padding: 0.35rem 0;
 }
-.cal-dow-cell.weekend { color: #d1d5db; }
 
 .cal-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  padding: 0 0.25rem 0.25rem;
 }
 
-/* ── Day cell (BrachyScheduler-inspired, polished) ── */
+/* ── Day cell ── */
 .cal-day {
   position: relative;
-  min-height: 5rem;
-  padding: 0.4rem 0.5rem;
+  min-height: 4.5rem;
+  padding: 0.35rem 0.4rem;
   border-right: 1px solid #f0f0f0;
   border-bottom: 1px solid #f0f0f0;
   background: var(--bg);
-  transition: background 0.1s;
+  transition: background 0.15s;
 }
 .cal-day:nth-child(7n) { border-right: none; }
 .cal-day.empty { background: transparent; border-color: transparent; }
 .cal-day.we { background: #fafbfc; }
-.cal-day.we .cal-num { color: #cbd5e1; }
+.cal-day.we .cal-num { color: #d1d5db; }
 
 .cal-num {
   font-size: 0.75rem;
@@ -452,68 +429,64 @@ body { margin: 0; min-height: 100vh; }
   line-height: 1;
   color: #9ca3af;
   display: block;
-  margin-bottom: 0.3rem;
-  text-align: left;
+  margin-bottom: 0.25rem;
 }
 
 .cal-num-today {
-  background: #2563eb;
+  background: var(--primary);
   color: #fff !important;
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
 }
 
-/* Treatment left-border indicators (clean, modern) */
-.cal-day.t-rt { border-left: 4px solid #3b82f6; }
-.cal-day.t-boost { border-left: 4px solid #818cf8; }
-.cal-day.t-acceptable { border-left: 4px solid #f59e0b; }
-.cal-day.t-optimal { border-left: 4px solid #22c55e; }
-.cal-day.t-target { background: #22c55e; }
-.cal-day.t-target .cal-num { color: #fff; font-weight: 700; }
-.cal-day.t-chemo { border-left: 4px solid #ec4899; }
+/* Faint full-fill shading for treatment ranges */
+.cal-day.t-rt { background: rgba(59,130,246,0.07); }
+.cal-day.t-boost { background: rgba(99,102,241,0.07); }
+.cal-day.t-acceptable { background: rgba(217,119,6,0.06); }
+.cal-day.t-optimal { background: rgba(190,24,93,0.06); }
+.cal-day.t-target { background: rgba(190,24,93,0.14); }
+.cal-day.t-target .cal-num { color: var(--primary); font-weight: 600; }
+.cal-day.t-chemo { background: rgba(168,85,247,0.07); }
 
 /* Drop target */
 .cal-day.droppable:not(.we) { outline: 2px dashed var(--primary); outline-offset: -2px; cursor: copy; }
 
-/* ── Event tags ── */
+/* ── Event tags (short codes, compact) ── */
 .cal-events {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 2px;
 }
 
-.cal-event {
-  display: block;
-  font-size: 0.6rem;
+.cal-tag {
+  display: inline-block;
+  font-size: 0.58rem;
   font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
   line-height: 1.5;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   user-select: none;
-  letter-spacing: 0.01em;
-  border: 1px solid transparent;
-  transition: border-color 0.15s;
+  letter-spacing: 0.02em;
 }
 
-.cal-event.draggable { cursor: grab; }
-.cal-event.draggable:active { cursor: grabbing; opacity: 0.7; }
-.cal-event.draggable:hover { border: 1px dashed currentColor; }
+.cal-tag.draggable { cursor: grab; }
+.cal-tag.draggable:active { cursor: grabbing; opacity: 0.7; }
+.cal-tag.draggable:hover { outline: 1px dashed currentColor; outline-offset: 1px; }
 
-/* Event color variants — translucent backgrounds */
-.ev-chemo { background: rgba(236,72,153,0.12); color: #ec4899; }
-.ev-sim { background: rgba(139,92,246,0.12); color: #7c3aed; }
-.ev-rt { background: rgba(37,99,235,0.12); color: #2563eb; }
-.ev-surgery { background: rgba(22,163,74,0.12); color: #16a34a; }
-.ev-neutral { background: rgba(100,116,139,0.12); color: #475569; }
+/* Tag colors by field */
+.tag-chemoEnd { background: rgba(168,85,247,0.15); color: #7c3aed; }
+.tag-simDate { background: rgba(190,24,93,0.12); color: var(--primary); }
+.tag-rtStartDate { background: rgba(59,130,246,0.12); color: #2563eb; }
+.tag-rtEnd { background: rgba(59,130,246,0.12); color: #2563eb; }
+.tag-dryRunDate { background: rgba(100,116,139,0.12); color: #475569; }
+.tag-surgeryTarget { background: rgba(190,24,93,0.18); color: var(--primary); font-weight: 700; }
 
 /* ═══════════ LEGEND ═══════════ */
 .legend {
@@ -723,7 +696,7 @@ body { margin: 0; min-height: 100vh; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 45%, #2563eb 100%);
+  background: linear-gradient(160deg, #1a1a2e 0%, #4a1942 45%, #be185d 100%);
   padding: 1.5rem;
 }
 
@@ -796,7 +769,7 @@ body { margin: 0; min-height: 100vh; }
   cursor: pointer;
   transition: all 0.15s;
 }
-.landing-cta:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+.landing-cta:hover { background: #9f1239; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(190,24,93,0.3); }
 .landing-cta:active { transform: translateY(0); }
 
 .landing-footer {
@@ -837,7 +810,6 @@ body { margin: 0; min-height: 100vh; }
   .cal-header { flex-direction: column; gap: 0.5rem; padding: 0.75rem; }
   .cal-nav { width: 100%; justify-content: center; }
   .cal-actions { width: 100%; justify-content: center; }
-  .cal-months-2, .cal-months-3 { grid-template-columns: 1fr; }
   .cal-day { min-height: 3rem; }
   .landing-card { padding: 2rem 1.5rem 1.75rem; }
   .landing-title { font-size: 1.4rem; }
@@ -1088,7 +1060,7 @@ body { margin: 0; min-height: 100vh; }
   transition: all 0.12s;
   white-space: nowrap;
 }
-.holiday-add-btn:hover { background: #1d4ed8; }
+.holiday-add-btn:hover { background: #9f1239; }
 .holiday-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .holiday-list {

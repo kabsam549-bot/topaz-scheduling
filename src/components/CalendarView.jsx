@@ -24,8 +24,8 @@ function parseD(s) {
 
 const DRAGGABLE_MILESTONES = {
   simDate: 'SIM',
-  rtStartDate: 'RT Start',
-  surgeryTarget: 'Surgery',
+  rtStartDate: 'RT1',
+  surgeryTarget: 'Sx',
 };
 
 function buildLayers(primary, secondary) {
@@ -58,7 +58,7 @@ function buildLayers(primary, secondary) {
 
 const TYPE_PRIORITY = { target: 6, optimal: 5, acceptable: 3, boost: 2, rt: 1 };
 
-function cellType(day, layers, hasSecondary) {
+function cellType(day, layers) {
   const hits = layers.filter((l) =>
     isWithinInterval(day, { start: l.start, end: l.end })
   );
@@ -72,25 +72,22 @@ function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
 
   const chemoD = parseD(chemoEndDate);
   if (chemoD && isSameDay(day, chemoD)) {
-    hits.push({ field: 'chemoEnd', name: 'Last Chemo', label: '', draggable: false, color: 'chemo' });
+    hits.push({ field: 'chemoEnd', code: 'Chemo', draggable: false });
   }
 
-  const check = (c, label) => {
+  const check = (c) => {
     if (!c) return;
-    for (const [field, name] of Object.entries(DRAGGABLE_MILESTONES)) {
+    for (const [field, code] of Object.entries(DRAGGABLE_MILESTONES)) {
       const d = parseD(c[field]);
-      if (d && isSameDay(day, d)) {
-        const color = field === 'simDate' ? 'sim' : field === 'rtStartDate' ? 'rt' : 'surgery';
-        hits.push({ field, name, label, draggable: true, color });
-      }
+      if (d && isSameDay(day, d)) hits.push({ field, code, draggable: true });
     }
     const dryD = parseD(c.dryRunDate);
-    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', name: 'Dry Run', label, draggable: false, color: 'neutral' });
+    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', code: 'DR', draggable: false });
     const endD = parseD(c.rtEndDateWithBoost || c.rtEndDate);
-    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', name: 'RT End', label, draggable: false, color: 'rt' });
+    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', code: 'RTx', draggable: false });
   };
-  check(primary, 'A');
-  if (secondary) check(secondary, 'B');
+  check(primary);
+  if (secondary) check(secondary);
   return hits;
 }
 
@@ -106,6 +103,15 @@ export default function CalendarView({
 }) {
   const layers = useMemo(() => buildLayers(primary, secondary), [primary, secondary]);
 
+  // Default snap: surgery target month if available, else earliest anchor
+  const surgeryMonth = useMemo(() => {
+    const target = parseD(primary?.surgeryTarget);
+    if (target) return startOfMonth(target);
+    const optStart = parseD(primary?.surgeryWindowOptimal?.start);
+    if (optStart) return startOfMonth(optStart);
+    return null;
+  }, [primary]);
+
   const anchors = useMemo(() => {
     const dates = [
       primary?.simDate,
@@ -120,17 +126,19 @@ export default function CalendarView({
     return dates.map(parseD).filter(Boolean);
   }, [primary, secondary, chemoEndDate]);
 
-  const autoMonth = anchors.length > 0
+  const earliestMonth = anchors.length > 0
     ? startOfMonth(anchors.reduce((a, b) => (a < b ? a : b), anchors[0]))
     : startOfMonth(new Date());
 
-  const [viewMonths, setViewMonths] = useState(3);
+  // Default to 1 month, snapped to surgery
+  const [viewMonths, setViewMonths] = useState(1);
   const viewOptions = [1, 2, 3];
   const [navMonth, setNavMonth] = useState(null);
-  const baseMonth = navMonth || autoMonth;
 
-  const prev = () => setNavMonth(subMonths(navMonth || autoMonth, 1));
-  const next = () => setNavMonth(addMonths(navMonth || autoMonth, 1));
+  const baseMonth = navMonth || (viewMonths === 1 && surgeryMonth ? surgeryMonth : earliestMonth);
+
+  const prev = () => setNavMonth(subMonths(navMonth || baseMonth, 1));
+  const next = () => setNavMonth(addMonths(navMonth || baseMonth, 1));
   const today = () => setNavMonth(null);
 
   const months = useMemo(() => {
@@ -167,7 +175,7 @@ export default function CalendarView({
           <h2 className="cal-title">
             {viewMonths === 1
               ? format(baseMonth, 'MMMM yyyy')
-              : `${format(months[0], 'MMMM')} \u2013 ${format(months[months.length - 1], 'MMMM yyyy')}`}
+              : `${format(months[0], 'MMM')} \u2013 ${format(months[months.length - 1], 'MMM yyyy')}`}
           </h2>
           <button type="button" className="cal-arrow" onClick={next}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -181,7 +189,7 @@ export default function CalendarView({
                 key={n}
                 type="button"
                 className={`cal-view-btn${viewMonths === n ? ' active' : ''}`}
-                onClick={() => setViewMonths(n)}
+                onClick={() => { setViewMonths(n); setNavMonth(null); }}
               >
                 {VIEW_LABELS[n]}
               </button>
@@ -197,7 +205,7 @@ export default function CalendarView({
       )}
 
       {primary && (
-        <div className={`cal-months cal-months-${viewMonths}`}>
+        <div className="cal-months cal-months-stack">
           {months.map((ms) => (
             <MonthGrid
               key={format(ms, 'yyyy-MM')}
@@ -249,7 +257,6 @@ function MonthGrid({
               primary={primary}
               secondary={secondary}
               chemoEndDate={chemoEndDate}
-              hasSecondary={hasSecondary}
               onDragStart={onDragStart}
               onDrop={onDrop}
               onDragEnd={onDragEnd}
@@ -265,11 +272,11 @@ function MonthGrid({
 }
 
 function DayCell({
-  day, layers, primary, secondary, chemoEndDate, hasSecondary,
+  day, layers, primary, secondary, chemoEndDate,
   onDragStart, onDrop, onDragEnd, isDragging,
 }) {
   const we = isWeekend(day);
-  const type = cellType(day, layers, hasSecondary);
+  const type = cellType(day, layers);
   const milestones = getMilestoneInfo(day, primary, secondary, chemoEndDate);
   const isTarget = milestones.some((m) => m.field === 'surgeryTarget');
   const isChemoEnd = milestones.some((m) => m.field === 'chemoEnd');
@@ -295,7 +302,6 @@ function DayCell({
     isChemoEnd && 't-chemo',
     isToday && 'today',
     isDragging && !we && 'droppable',
-    milestones.length > 0 && 'has-event',
   ].filter(Boolean).join(' ');
 
   return (
@@ -310,7 +316,7 @@ function DayCell({
           {milestones.map((m, i) => (
             <span
               key={i}
-              className={`cal-event ev-${m.color}${m.draggable ? ' draggable' : ''}`}
+              className={`cal-tag tag-${m.field}${m.draggable ? ' draggable' : ''}`}
               draggable={m.draggable}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';
@@ -318,9 +324,9 @@ function DayCell({
                 onDragStart(m.field);
               }}
               onDragEnd={onDragEnd}
-              title={m.draggable ? `Drag to reschedule ${m.name}` : m.name}
+              title={m.draggable ? `Drag to reschedule` : m.code}
             >
-              {m.name}
+              {m.code}
             </span>
           ))}
         </div>
