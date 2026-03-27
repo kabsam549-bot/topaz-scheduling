@@ -24,8 +24,8 @@ function parseD(s) {
 
 const DRAGGABLE_MILESTONES = {
   simDate: 'SIM',
-  rtStartDate: 'RT1',
-  surgeryTarget: 'Sx',
+  rtStartDate: 'RT Start',
+  surgeryTarget: 'Surgery',
 };
 
 function buildLayers(primary, secondary) {
@@ -72,7 +72,7 @@ function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
 
   const chemoD = parseD(chemoEndDate);
   if (chemoD && isSameDay(day, chemoD)) {
-    hits.push({ field: 'chemoEnd', code: 'Chemo', draggable: false });
+    hits.push({ field: 'chemoEnd', code: 'Chemo End', draggable: false });
   }
 
   const check = (c) => {
@@ -82,9 +82,9 @@ function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
       if (d && isSameDay(day, d)) hits.push({ field, code, draggable: true });
     }
     const dryD = parseD(c.dryRunDate);
-    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', code: 'DR', draggable: false });
+    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', code: 'Dry Run', draggable: false });
     const endD = parseD(c.rtEndDateWithBoost || c.rtEndDate);
-    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', code: 'RTx', draggable: false });
+    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', code: 'RT End', draggable: false });
   };
   check(primary);
   if (secondary) check(secondary);
