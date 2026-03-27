@@ -58,49 +58,44 @@ function buildLayers(primary, secondary) {
 
 const TYPE_PRIORITY = { target: 6, optimal: 5, acceptable: 3, boost: 2, rt: 1 };
 
-function cellClasses(day, layers, hasSecondary) {
+function cellType(day, layers, hasSecondary) {
   const hits = layers.filter((l) =>
     isWithinInterval(day, { start: l.start, end: l.end })
   );
-  if (hits.length === 0) return '';
+  if (hits.length === 0) return null;
   hits.sort((a, b) => (TYPE_PRIORITY[b.type] || 0) - (TYPE_PRIORITY[a.type] || 0));
-  const cls = [];
-  const seen = new Set();
-  for (const h of hits) {
-    if (seen.has(h.type)) continue;
-    seen.add(h.type);
-    const ov = hasSecondary && h.scenarioIdx === 1 ? ' overlay' : '';
-    cls.push(`cell-${h.type}${ov}`);
-  }
-  return cls.join(' ');
+  return hits[0].type;
 }
 
 function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
   const hits = [];
 
-  // Check chemo end date
   const chemoD = parseD(chemoEndDate);
   if (chemoD && isSameDay(day, chemoD)) {
-    hits.push({ field: 'chemoEnd', name: 'Last Chemo', label: '', draggable: false });
+    hits.push({ field: 'chemoEnd', name: 'Last Chemo', label: '', draggable: false, color: 'chemo' });
   }
 
   const check = (c, label) => {
     if (!c) return;
     for (const [field, name] of Object.entries(DRAGGABLE_MILESTONES)) {
       const d = parseD(c[field]);
-      if (d && isSameDay(day, d)) hits.push({ field, name, label, draggable: true });
+      if (d && isSameDay(day, d)) {
+        const color = field === 'simDate' ? 'sim' : field === 'rtStartDate' ? 'rt' : 'surgery';
+        hits.push({ field, name, label, draggable: true, color });
+      }
     }
     const dryD = parseD(c.dryRunDate);
-    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', name: 'Dry Run', label, draggable: false });
+    if (dryD && isSameDay(day, dryD)) hits.push({ field: 'dryRunDate', name: 'Dry Run', label, draggable: false, color: 'neutral' });
     const endD = parseD(c.rtEndDateWithBoost || c.rtEndDate);
-    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', name: 'RT End', label, draggable: false });
+    if (endD && isSameDay(day, endD)) hits.push({ field: 'rtEnd', name: 'RT End', label, draggable: false, color: 'rt' });
   };
   check(primary, 'A');
   if (secondary) check(secondary, 'B');
   return hits;
 }
 
-const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DOW_FULL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function CalendarView({
   primary,
@@ -121,7 +116,6 @@ export default function CalendarView({
       secondary?.rtEndDateWithBoost,
       secondary?.surgeryWindowAcceptable?.end,
     ];
-    // Include chemo end date as an anchor so calendar starts earlier
     if (chemoEndDate) dates.push(chemoEndDate);
     return dates.map(parseD).filter(Boolean);
   }, [primary, secondary, chemoEndDate]);
@@ -135,8 +129,8 @@ export default function CalendarView({
   const [navMonth, setNavMonth] = useState(null);
   const baseMonth = navMonth || autoMonth;
 
-  const prev = () => setNavMonth(subMonths(navMonth || autoMonth, viewMonths === 1 ? 1 : 3));
-  const next = () => setNavMonth(addMonths(navMonth || autoMonth, viewMonths === 1 ? 1 : 3));
+  const prev = () => setNavMonth(subMonths(navMonth || autoMonth, 1));
+  const next = () => setNavMonth(addMonths(navMonth || autoMonth, 1));
   const today = () => setNavMonth(null);
 
   const months = useMemo(() => {
@@ -164,29 +158,32 @@ export default function CalendarView({
   const handleDragEnd = useCallback(() => setDragField(null), []);
 
   return (
-    <div className="calendar-panel" id="topaz-calendar-export">
-      <div className="cal-toolbar">
+    <div className="cal-panel" id="topaz-calendar-export">
+      <div className="cal-header">
         <div className="cal-nav">
-          <button type="button" className="cal-nav-btn" onClick={prev}>&#8249;</button>
-          <span className="cal-nav-label">
+          <button type="button" className="cal-arrow" onClick={prev}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h2 className="cal-title">
             {viewMonths === 1
               ? format(baseMonth, 'MMMM yyyy')
-              : `${format(months[0], 'MMM yyyy')} \u2013 ${format(months[months.length - 1], 'MMM yyyy')}`}
-          </span>
-          <button type="button" className="cal-nav-btn" onClick={next}>&#8250;</button>
-          <button type="button" className="cal-nav-btn cal-today-btn" onClick={today}>Today</button>
+              : `${format(months[0], 'MMMM')} \u2013 ${format(months[months.length - 1], 'MMMM yyyy')}`}
+          </h2>
+          <button type="button" className="cal-arrow" onClick={next}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
-
-        <div className="cal-controls">
-          <div className="seg-group">
+        <div className="cal-actions">
+          <button type="button" className="cal-today" onClick={today}>Today</button>
+          <div className="cal-view-toggle">
             {viewOptions.map((n) => (
               <button
                 key={n}
                 type="button"
-                className={`seg-btn${viewMonths === n ? ' active' : ''}`}
+                className={`cal-view-btn${viewMonths === n ? ' active' : ''}`}
                 onClick={() => setViewMonths(n)}
               >
-                {n} Mo
+                {n}
               </button>
             ))}
           </div>
@@ -195,12 +192,12 @@ export default function CalendarView({
 
       {!primary && (
         <div className="cal-empty">
-          Enter a last chemo date to see the treatment timeline.
+          Enter a last chemo date to generate the treatment timeline.
         </div>
       )}
 
       {primary && (
-        <div className={`cal-grid-wrap months-${viewMonths}`}>
+        <div className={`cal-months cal-months-${viewMonths}`}>
           {months.map((ms) => (
             <MonthGrid
               key={format(ms, 'yyyy-MM')}
@@ -235,14 +232,14 @@ function MonthGrid({
   days.forEach((d) => cells.push(d));
 
   return (
-    <div className="month-block">
-      <div className="month-header">{format(monthStart, 'MMMM yyyy')}</div>
-      <div className="dow-row">
-        {DOW.map((d) => (
-          <div key={d} className="dow-cell">{d}</div>
+    <div className="cal-month">
+      <div className="cal-month-name">{format(monthStart, 'MMMM yyyy')}</div>
+      <div className="cal-dow">
+        {DOW.map((d, i) => (
+          <div key={i} className={`cal-dow-cell${i === 0 || i === 6 ? ' weekend' : ''}`}>{d}</div>
         ))}
       </div>
-      <div className="day-grid">
+      <div className="cal-days">
         {cells.map((day, idx) =>
           day ? (
             <DayCell
@@ -259,7 +256,7 @@ function MonthGrid({
               isDragging={isDragging}
             />
           ) : (
-            <div key={`pad-${idx}`} className="day-cell pad" />
+            <div key={`pad-${idx}`} className="cal-day empty" />
           )
         )}
       </div>
@@ -272,10 +269,11 @@ function DayCell({
   onDragStart, onDrop, onDragEnd, isDragging,
 }) {
   const we = isWeekend(day);
-  const cls = cellClasses(day, layers, hasSecondary);
+  const type = cellType(day, layers, hasSecondary);
   const milestones = getMilestoneInfo(day, primary, secondary, chemoEndDate);
   const isTarget = milestones.some((m) => m.field === 'surgeryTarget');
   const isChemoEnd = milestones.some((m) => m.field === 'chemoEnd');
+  const isToday = isSameDay(day, new Date());
 
   const handleDragOver = (e) => {
     if (isDragging && !we) {
@@ -289,29 +287,30 @@ function DayCell({
     onDrop(day);
   };
 
-  const isToday = isSameDay(day, new Date());
+  const classes = [
+    'cal-day',
+    we && 'we',
+    type && `t-${type}`,
+    isTarget && 't-target',
+    isChemoEnd && 't-chemo',
+    isToday && 'today',
+    isDragging && !we && 'droppable',
+    milestones.length > 0 && 'has-event',
+  ].filter(Boolean).join(' ');
 
   return (
     <div
-      className={[
-        'day-cell',
-        we && 'weekend',
-        cls,
-        isTarget && 'cell-target',
-        isChemoEnd && 'cell-chemo-end',
-        isToday && 'cell-today',
-        isDragging && !we && 'drop-target',
-      ].filter(Boolean).join(' ')}
+      className={classes}
       onDragOver={handleDragOver}
       onDrop={handleDropEvt}
     >
-      <span className="day-num">{format(day, 'd')}</span>
+      <span className={`cal-num${isToday ? ' cal-num-today' : ''}`}>{format(day, 'd')}</span>
       {milestones.length > 0 && (
-        <div className="milestone-tags">
+        <div className="cal-events">
           {milestones.map((m, i) => (
             <span
               key={i}
-              className={`mtag${m.draggable ? ' draggable' : ''}${m.field === 'chemoEnd' ? ' mtag-chemo' : ''}`}
+              className={`cal-event ev-${m.color}${m.draggable ? ' draggable' : ''}`}
               draggable={m.draggable}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';
