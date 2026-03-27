@@ -8,27 +8,22 @@ function parseD(s) {
 function fmtDate(s) {
   const d = parseD(s);
   if (!d) return null;
-  return format(d, 'EEE, MMM d, yyyy');
+  return format(d, 'MMM d, yyyy');
+}
+
+function fmtShort(s) {
+  const d = parseD(s);
+  if (!d) return null;
+  return format(d, 'MMM d');
 }
 
 function fmtWindow(w) {
   if (!w || !w.start) return null;
-  const s = fmtDate(w.start);
-  const e = fmtDate(w.end);
-  if (e && w.end !== w.start) return `${s} \u2192 ${e}`;
-  return s;
+  return `${fmtShort(w.start)} \u2013 ${fmtShort(w.end)}`;
 }
 
-/**
- * Determine status for each milestone:
- * - 'ok' = within protocol constraints (green check)
- * - 'warn' = outside recommended range (yellow warning)
- * - 'error' = violates protocol requirement (red X)
- * - 'pending' = no data yet
- */
-function getStatus(key, computed, warnings) {
+function getStatus(key, computed) {
   if (!computed) return 'pending';
-  const warnCodes = new Set((warnings || []).map(w => w.code));
 
   switch (key) {
     case 'lastChemoDate':
@@ -39,8 +34,8 @@ function getStatus(key, computed, warnings) {
       const sim = parseD(computed.simDate);
       if (!chemo || !sim) return 'pending';
       const gap = differenceInCalendarDays(sim, chemo);
-      if (gap < 7) return 'error'; // too early
-      if (gap > 14) return 'warn'; // late but not protocol violation
+      if (gap < 7) return 'error';
+      if (gap > 14) return 'warn';
       return 'ok';
     }
 
@@ -48,9 +43,7 @@ function getStatus(key, computed, warnings) {
       const dry = parseD(computed.dryRunDate);
       const rt = parseD(computed.rtStartDate);
       if (!dry || !rt) return 'pending';
-      // Dry run should be on or before RT start
-      const gap = differenceInCalendarDays(rt, dry);
-      if (gap < 0) return 'error';
+      if (differenceInCalendarDays(rt, dry) < 0) return 'error';
       return 'ok';
     }
 
@@ -59,18 +52,11 @@ function getStatus(key, computed, warnings) {
       const sim = parseD(computed.simDate);
       const rt = parseD(computed.rtStartDate);
       if (!rt) return 'pending';
-      // RT must be after sim
       if (sim && differenceInCalendarDays(rt, sim) < 1) return 'error';
-      // Within 8 weeks of chemo
-      if (chemo) {
-        const gap = differenceInCalendarDays(rt, chemo);
-        if (gap > 56) return 'warn';
-      }
-      // Planning gap 7-14 days from sim
+      if (chemo && differenceInCalendarDays(rt, chemo) > 56) return 'warn';
       if (sim) {
         const planGap = differenceInCalendarDays(rt, sim);
-        if (planGap < 7) return 'warn';
-        if (planGap > 14) return 'warn';
+        if (planGap < 7 || planGap > 14) return 'warn';
       }
       return 'ok';
     }
@@ -78,11 +64,11 @@ function getStatus(key, computed, warnings) {
     case 'rtEndDate':
       return (computed.rtEndDateWithBoost || computed.rtEndDate) ? 'ok' : 'pending';
 
-    case 'surgeryWindowOptimal':
-      return computed.surgeryWindowOptimal?.start ? 'ok' : 'pending';
-
     case 'surgeryWindowAcceptable':
       return computed.surgeryWindowAcceptable?.start ? 'ok' : 'pending';
+
+    case 'surgeryWindowOptimal':
+      return computed.surgeryWindowOptimal?.start ? 'ok' : 'pending';
 
     case 'surgeryTarget':
       return computed.surgeryTarget ? 'ok' : 'pending';
@@ -92,54 +78,27 @@ function getStatus(key, computed, warnings) {
   }
 }
 
-function StatusIcon({ status }) {
-  if (status === 'ok') {
-    return (
-      <span className="status-icon status-ok">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-      </span>
-    );
-  }
-  if (status === 'warn') {
-    return (
-      <span className="status-icon status-warn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </span>
-    );
-  }
-  if (status === 'error') {
-    return (
-      <span className="status-icon status-error">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-        </svg>
-      </span>
-    );
-  }
+function StatusDot({ status }) {
+  const colors = {
+    ok: '#16a34a',
+    warn: '#d97706',
+    error: '#dc2626',
+    pending: '#d1d5db',
+  };
   return (
-    <span className="status-icon status-pending">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-      </svg>
-    </span>
+    <span className="tl-dot" style={{ background: colors[status] || colors.pending }} />
   );
 }
 
 const MILESTONES = [
-  { key: 'lastChemoDate', label: 'Chemotherapy' },
-  { key: 'simDate', label: 'CT Simulation' },
-  { key: 'dryRunDate', label: 'Dry Run' },
-  { key: 'rtStartDate', label: 'RT Day 1' },
-  { key: 'rtEndDate', label: 'Last Fraction' },
-  { key: 'surgeryWindowAcceptable', label: 'Acceptable Window' },
-  { key: 'surgeryWindowOptimal', label: 'Optimal Window' },
-  { key: 'surgeryTarget', label: 'Target Surgery' },
+  { key: 'lastChemoDate', label: 'Chemotherapy', icon: 'chemo' },
+  { key: 'simDate', label: 'CT Simulation', icon: 'sim' },
+  { key: 'dryRunDate', label: 'Dry Run', icon: 'dry' },
+  { key: 'rtStartDate', label: 'RT Day 1', icon: 'rt' },
+  { key: 'rtEndDate', label: 'Last Fraction', icon: 'rt' },
+  { key: 'surgeryWindowAcceptable', label: 'Acceptable Window', icon: 'window' },
+  { key: 'surgeryWindowOptimal', label: 'Optimal Window', icon: 'window' },
+  { key: 'surgeryTarget', label: 'Target Surgery', icon: 'surgery' },
 ];
 
 function getValue(computed, key) {
@@ -164,7 +123,7 @@ function getSubtext(key, computed) {
       const sim = parseD(computed.simDate);
       if (chemo && sim) {
         const gap = differenceInCalendarDays(sim, chemo);
-        return `${gap} days after last chemo (target: 7-14)`;
+        return `${gap}d after chemo`;
       }
       return null;
     }
@@ -173,16 +132,14 @@ function getSubtext(key, computed) {
       const rt = parseD(computed.rtStartDate);
       if (sim && rt) {
         const gap = differenceInCalendarDays(rt, sim);
-        return `${gap} days after sim (planning: 7-14)`;
+        return `${gap}d after sim`;
       }
       return null;
     }
     case 'rtEndDate': {
       const base = fmtDate(computed.rtEndDate);
       const boost = fmtDate(computed.rtEndDateWithBoost);
-      if (boost && boost !== base) {
-        return `Base: ${base}`;
-      }
+      if (boost && boost !== base) return `Base: ${base}`;
       return null;
     }
     default:
@@ -192,29 +149,29 @@ function getSubtext(key, computed) {
 
 export default function SummaryTable({ primary, secondary, labels = [], warnings = [] }) {
   return (
-    <div className="summary-checklist-wrap">
+    <div className="tl-wrap">
       <h2 className="panel-heading">Treatment Timeline</h2>
       {!primary && <p className="muted">No computed milestones yet.</p>}
       {primary && (
-        <div className="summary-checklist">
-          {MILESTONES.map(({ key, label }) => {
-            const status = getStatus(key, primary, warnings);
+        <div className="tl-list">
+          {MILESTONES.map(({ key, label, icon }, idx) => {
+            const status = getStatus(key, primary);
             const value = getValue(primary, key);
             const subtext = getSubtext(key, primary);
-            const secondaryValue = secondary ? getValue(secondary, key) : null;
+            const isLast = idx === MILESTONES.length - 1;
 
             return (
-              <div key={key} className={`checklist-row checklist-${status}`}>
-                <StatusIcon status={status} />
-                <div className="checklist-content">
-                  <div className="checklist-label">{label}</div>
-                  <div className="checklist-value">{value}</div>
-                  {subtext && <div className="checklist-subtext">{subtext}</div>}
-                  {secondaryValue && secondaryValue !== value && (
-                    <div className="checklist-secondary">
-                      {labels[1] || 'Alt'}: {secondaryValue}
-                    </div>
-                  )}
+              <div key={key} className={`tl-row tl-${status}`}>
+                <div className="tl-indicator">
+                  <StatusDot status={status} />
+                  {!isLast && <div className="tl-line" />}
+                </div>
+                <div className="tl-content">
+                  <div className="tl-top">
+                    <span className="tl-label">{label}</span>
+                    <span className="tl-value">{value}</span>
+                  </div>
+                  {subtext && <div className="tl-sub">{subtext}</div>}
                 </div>
               </div>
             );
