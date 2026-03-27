@@ -57,13 +57,25 @@ export function useTopazSchedule() {
   }, []);
 
   const handleMilestoneDrag = useCallback((field, dateStr) => {
-    if (field === 'simDate') {
-      setState((prev) => ({ ...prev, simDate: dateStr, rtStartDate: null }));
-    } else if (field === 'rtStartDate') {
-      setState((prev) => ({ ...prev, rtStartDate: dateStr }));
-    } else if (field === 'surgeryTarget') {
-      setState((prev) => ({ ...prev, surgeryTargetOverride: dateStr }));
-    }
+    setState((prev) => {
+      const chemoEnd = prev.chemoEndDate || null;
+      const simDate = prev.simDate || null;
+
+      if (field === 'simDate') {
+        // Cannot drag sim before chemo end
+        if (chemoEnd && dateStr < chemoEnd) return prev;
+        return { ...prev, simDate: dateStr, rtStartDate: null };
+      } else if (field === 'rtStartDate') {
+        // Cannot drag RT start before sim
+        const effectiveSim = simDate || (chemoEnd ? null : null);
+        if (effectiveSim && dateStr <= effectiveSim) return prev;
+        if (chemoEnd && dateStr <= chemoEnd) return prev;
+        return { ...prev, rtStartDate: dateStr };
+      } else if (field === 'surgeryTarget') {
+        return { ...prev, surgeryTargetOverride: dateStr };
+      }
+      return prev;
+    });
   }, []);
 
   const { result, computeError } = useMemo(() => {

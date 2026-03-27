@@ -77,45 +77,32 @@ body { margin: 0; min-height: 100vh; }
 .title-gem { display: none; }
 .protocol-pill { display: none; }
 
-.top-bar-actions {
+.top-bar-right {
   display: flex;
+  align-items: center;
   gap: 0.4rem;
 }
 
-.action-btn {
-  border: 1px solid rgba(255,255,255,0.2);
+.topbar-icon-btn {
+  border: 1px solid rgba(255,255,255,0.15);
   background: transparent;
   color: rgba(255,255,255,0.9);
-  padding: 0.35rem 0.85rem;
+  padding: 0.4rem;
   border-radius: var(--radius);
-  font-size: 0.78rem;
-  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
-}
-
-.action-btn:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.35);
-}
-
-.action-btn.accent {
-  background: #ffffff;
-  color: var(--primary-dark);
-  border-color: transparent;
-  font-weight: 600;
-}
-
-.action-btn.accent:hover { background: #f1f5f9; }
-.action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.back-btn {
-  padding: 0.35rem 0.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 0.15rem;
 }
+
+.topbar-icon-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Legacy compat */
+.action-btn { display: none; }
 
 /* ───────── Main layout: sidebar + calendar ───────── */
 .main-layout {
@@ -738,23 +725,16 @@ body { margin: 0; min-height: 100vh; }
   margin-top: 0.15rem;
 }
 
-/* ───────── Hamburger / dropdown menu ───────── */
+/* ───────── Dropdown menu ───────── */
 .menu-wrapper {
   position: relative;
-}
-
-.hamburger-btn {
-  padding: 0.35rem 0.5rem !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 340px;
+  width: 320px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -763,26 +743,56 @@ body { margin: 0; min-height: 100vh; }
   overflow: hidden;
 }
 
-.dropdown-header {
-  padding: 0.75rem 1rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+.dropdown-section {
+  padding: 0.4rem 0;
 }
 
-.dropdown-menu .assumptions-table {
-  margin: 0;
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.dropdown-item:hover { background: var(--surface); }
+.dropdown-item:disabled { opacity: 0.4; cursor: not-allowed; }
+.dropdown-item:disabled:hover { background: none; }
+.dropdown-item svg { color: var(--muted); flex-shrink: 0; }
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.dropdown-header {
+  padding: 0.5rem 1rem 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-assumptions {
+  padding: 0 0.25rem;
 }
 
 .dropdown-menu .assumptions-table td {
-  padding: 0.35rem 1rem;
-  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.72rem;
 }
 
 .dropdown-footer {
-  padding: 0.6rem 1rem;
+  padding: 0.55rem 1rem;
   font-size: 0.68rem;
   color: var(--muted);
   border-top: 1px solid var(--border);
@@ -790,9 +800,27 @@ body { margin: 0; min-height: 100vh; }
   font-style: italic;
 }
 
+/* ───────── Checklist status colors ───────── */
+.status-error { color: var(--warning); }
+
+.checklist-row.checklist-error {
+  background: #fef2f2;
+}
+
+.checklist-row.checklist-warn {
+  background: #fffbeb;
+}
+
+.checklist-subtext {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
 /* Legacy compat */
 .summary-table-wrap { display: none; }
 .below-calendar { display: none; }
+.top-bar-actions { display: none; }
 
 /* ───────── Misc ───────── */
 .panel-heading {

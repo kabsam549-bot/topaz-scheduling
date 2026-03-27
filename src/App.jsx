@@ -184,6 +184,7 @@ export default function App() {
             primary={view.primary}
             secondary={view.secondary}
             labels={view.labels}
+            warnings={warnings}
           />
         </div>
       </div>
