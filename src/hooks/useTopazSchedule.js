@@ -36,7 +36,7 @@ const DEFAULT_DISPLAY_TOGGLES = {
   boost: 'yes',
 };
 
-export function useTopazSchedule() {
+export function useTopazSchedule(closureDates) {
   const [state, setState] = useState(() => ({ ...DEFAULT_FORM_STATE }));
   const [displayToggles, setDisplayToggles] = useState(() => ({
     ...DEFAULT_DISPLAY_TOGGLES,
@@ -81,7 +81,7 @@ export function useTopazSchedule() {
 
   const { result, computeError } = useMemo(() => {
     try {
-      const r = computeSchedule(state);
+      const r = computeSchedule({ ...state, closureDates: closureDates || [] });
       return { result: r, computeError: null };
     } catch (e) {
       return {
@@ -89,7 +89,7 @@ export function useTopazSchedule() {
         computeError: e?.message || 'Schedule computation failed.',
       };
     }
-  }, [state]);
+  }, [state, closureDates]);
 
   const warnings = useMemo(() => {
     if (!result?.warnings) return [];

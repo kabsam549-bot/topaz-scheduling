@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import LandingPage from './components/LandingPage.jsx';
@@ -7,6 +7,7 @@ import InputPanel from './components/InputPanel.jsx';
 import CalendarView from './components/CalendarView.jsx';
 import SummaryTable from './components/SummaryTable.jsx';
 import Legend from './components/Legend.jsx';
+import SettingsModal, { DEFAULT_SETTINGS } from './components/SettingsModal.jsx';
 import { useTopazSchedule } from './hooks/useTopazSchedule.js';
 import {
   buildArmsAndBoostScenarios,
@@ -23,6 +24,14 @@ export default function App() {
   const fileInputRef = useRef(null);
   const [importError, setImportError] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS }));
+
+  // Convert holiday date strings to Date objects for closureDates
+  const closureDates = useMemo(
+    () => settings.holidays.map((h) => new Date(h.date + 'T00:00:00')),
+    [settings.holidays]
+  );
 
   const {
     state,
@@ -35,7 +44,7 @@ export default function App() {
     view,
     applyImportedJson,
     handleMilestoneDrag,
-  } = useTopazSchedule();
+  } = useTopazSchedule(closureDates);
 
   const buildExportDoc = useCallback(() => {
     const snap = result ? buildArmsAndBoostScenarios(result) : null;
@@ -151,6 +160,14 @@ export default function App() {
         onExportPdf={onExportPdf}
         disabledPdf={!view.primary}
         onBack={() => setShowLanding(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        settings={settings}
+        onSettingsChange={setSettings}
       />
 
       {computeError && (
