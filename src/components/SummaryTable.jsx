@@ -24,14 +24,11 @@ function fmtWindow(w) {
 
 function getStatus(key, computed) {
   if (!computed) return 'pending';
-
   switch (key) {
     case 'chemoStart':
       return computed.lastChemoDate ? 'ok' : 'pending';
-
     case 'lastChemoDate':
       return computed.lastChemoDate ? 'ok' : 'pending';
-
     case 'simDate': {
       const chemo = parseD(computed.lastChemoDate);
       const sim = parseD(computed.simDate);
@@ -41,7 +38,6 @@ function getStatus(key, computed) {
       if (gap > 14) return 'warn';
       return 'ok';
     }
-
     case 'dryRunDate': {
       const dry = parseD(computed.dryRunDate);
       const rt = parseD(computed.rtStartDate);
@@ -49,45 +45,60 @@ function getStatus(key, computed) {
       if (differenceInCalendarDays(rt, dry) < 0) return 'error';
       return 'ok';
     }
-
     case 'rtStartDate': {
       const sim = parseD(computed.simDate);
       const rt = parseD(computed.rtStartDate);
       if (!rt) return 'pending';
       if (sim && differenceInCalendarDays(rt, sim) < 1) return 'error';
       if (sim) {
-        const planGap = differenceInCalendarDays(rt, sim);
-        if (planGap < 7 || planGap > 14) return 'warn';
+        const g = differenceInCalendarDays(rt, sim);
+        if (g < 7 || g > 14) return 'warn';
       }
       return 'ok';
     }
-
     case 'rtEndDate':
       return (computed.rtEndDateWithBoost || computed.rtEndDate) ? 'ok' : 'pending';
-
     case 'surgeryWindowAcceptable':
       return computed.surgeryWindowAcceptable?.start ? 'ok' : 'pending';
-
     case 'surgeryWindowOptimal':
       return computed.surgeryWindowOptimal?.start ? 'ok' : 'pending';
-
     case 'surgeryTarget':
       return computed.surgeryTarget ? 'ok' : 'pending';
-
     default:
       return 'pending';
   }
 }
 
-function StatusDot({ status }) {
-  const colors = {
-    ok: '#16a34a',
-    warn: '#d97706',
-    error: '#dc2626',
-    pending: '#d1d5db',
-  };
+function StatusIcon({ status }) {
+  if (status === 'ok') {
+    return (
+      <svg className="tl-icon tl-icon-ok" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    );
+  }
+  if (status === 'warn') {
+    return (
+      <svg className="tl-icon tl-icon-warn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    );
+  }
+  if (status === 'error') {
+    return (
+      <svg className="tl-icon tl-icon-error" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+    );
+  }
+  // pending = wireframe circle
   return (
-    <span className="tl-dot" style={{ background: colors[status] || colors.pending }} />
+    <svg className="tl-icon tl-icon-pending" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+    </svg>
   );
 }
 
@@ -105,12 +116,8 @@ const MILESTONES = [
 
 function getValue(computed, key, chemoStartDate) {
   if (!computed) return '\u2014';
-  if (key === 'chemoStart') {
-    return chemoStartDate ? fmtDate(chemoStartDate) : '\u2014';
-  }
-  if (key === 'surgeryWindowOptimal' || key === 'surgeryWindowAcceptable') {
-    return fmtWindow(computed[key]) || '\u2014';
-  }
+  if (key === 'chemoStart') return chemoStartDate ? fmtDate(chemoStartDate) : '\u2014';
+  if (key === 'surgeryWindowOptimal' || key === 'surgeryWindowAcceptable') return fmtWindow(computed[key]) || '\u2014';
   if (key === 'rtEndDate') {
     const boost = fmtDate(computed.rtEndDateWithBoost);
     const base = fmtDate(computed.rtEndDate);
@@ -126,19 +133,13 @@ function getSubtext(key, computed) {
     case 'simDate': {
       const chemo = parseD(computed.lastChemoDate);
       const sim = parseD(computed.simDate);
-      if (chemo && sim) {
-        const gap = differenceInCalendarDays(sim, chemo);
-        return `${gap}d after chemo end`;
-      }
+      if (chemo && sim) return `${differenceInCalendarDays(sim, chemo)}d after chemo end`;
       return null;
     }
     case 'rtStartDate': {
       const sim = parseD(computed.simDate);
       const rt = parseD(computed.rtStartDate);
-      if (sim && rt) {
-        const gap = differenceInCalendarDays(rt, sim);
-        return `${gap}d planning gap`;
-      }
+      if (sim && rt) return `${differenceInCalendarDays(rt, sim)}d planning gap`;
       return null;
     }
     case 'rtEndDate': {
@@ -159,18 +160,14 @@ export default function SummaryTable({ primary, secondary, labels = [], warnings
       {!primary && <p className="muted">No computed milestones yet.</p>}
       {primary && (
         <div className="tl-list">
-          {MILESTONES.map(({ key, label }, idx) => {
+          {MILESTONES.map(({ key, label }) => {
             const status = getStatus(key, primary);
             const value = getValue(primary, key, chemoStartDate);
             const subtext = getSubtext(key, primary);
-            const isLast = idx === MILESTONES.length - 1;
 
             return (
               <div key={key} className={`tl-row tl-${status}`}>
-                <div className="tl-indicator">
-                  <StatusDot status={status} />
-                  {!isLast && <div className="tl-line" />}
-                </div>
+                <StatusIcon status={status} />
                 <div className="tl-content">
                   <div className="tl-top">
                     <span className="tl-label">{label}</span>
