@@ -312,21 +312,35 @@ function DayCell({
     >
       <span className={`cal-num${isToday ? ' cal-num-today' : ''}`}>{format(day, 'd')}</span>
       {milestones.length > 0 && (
-        <div className="cal-markers">
-          {milestones.map((m, i) => (
-            <span
-              key={i}
-              className={`cal-marker marker-${m.field}${m.draggable ? ' draggable' : ''}`}
-              draggable={m.draggable}
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', m.field);
-                onDragStart(m.field);
-              }}
-              onDragEnd={onDragEnd}
-              title={m.code}
-            />
-          ))}
+        <div className="cal-events">
+          {/* Show only one label if multiple overlap -- pick the most important */}
+          {(() => {
+            const priority = ['surgeryTarget', 'rtStartDate', 'simDate', 'chemoEnd', 'rtEnd', 'dryRunDate'];
+            const seen = new Set();
+            return milestones
+              .sort((a, b) => priority.indexOf(a.field) - priority.indexOf(b.field))
+              .filter(m => {
+                if (seen.size > 0) return false; // only show one label per cell
+                seen.add(m.field);
+                return true;
+              })
+              .map((m, i) => (
+                <span
+                  key={i}
+                  className={`cal-tag tag-${m.field}${m.draggable ? ' draggable' : ''}`}
+                  draggable={m.draggable}
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', m.field);
+                    onDragStart(m.field);
+                  }}
+                  onDragEnd={onDragEnd}
+                  title={m.draggable ? `Drag to reschedule` : m.code}
+                >
+                  {m.code}
+                </span>
+              ));
+          })()}
         </div>
       )}
     </div>

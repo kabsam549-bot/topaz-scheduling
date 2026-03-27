@@ -459,33 +459,40 @@ body { margin: 0; min-height: 100vh; }
 /* Drop target */
 .cal-day.droppable:not(.we) { outline: 2px dashed var(--primary); outline-offset: -2px; cursor: copy; }
 
-/* ── Milestone markers (dots, no text) ── */
-.cal-markers {
+/* ── Event tags (one per cell max) ── */
+.cal-events {
   display: flex;
   justify-content: center;
-  gap: 3px;
   margin-top: auto;
   padding-top: 2px;
 }
 
-.cal-marker {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.cal-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.5;
+  white-space: nowrap;
+  user-select: none;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.cal-marker.draggable { cursor: grab; width: 8px; height: 8px; }
-.cal-marker.draggable:active { cursor: grabbing; opacity: 0.6; }
-.cal-marker.draggable:hover { box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+.cal-tag.draggable { cursor: grab; }
+.cal-tag.draggable:active { cursor: grabbing; opacity: 0.7; }
+.cal-tag.draggable:hover { outline: 1px dashed currentColor; outline-offset: 1px; }
 
-/* Marker colors */
-.marker-chemoEnd { background: #a855f7; }
-.marker-simDate { background: #be185d; }
-.marker-rtStartDate { background: #3b82f6; }
-.marker-rtEnd { background: #3b82f6; }
-.marker-dryRunDate { background: #64748b; }
-.marker-surgeryTarget { background: #be185d; width: 8px; height: 8px; }
+/* Tag colors */
+.tag-chemoEnd { background: rgba(168,85,247,0.18); color: #6d28d9; }
+.tag-simDate { background: rgba(190,24,93,0.15); color: #9f1239; }
+.tag-rtStartDate { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+.tag-rtEnd { background: rgba(59,130,246,0.15); color: #1d4ed8; }
+.tag-dryRunDate { background: rgba(100,116,139,0.15); color: #334155; }
+.tag-surgeryTarget { background: rgba(190,24,93,0.22); color: #881337; font-weight: 700; }
 
 /* ═══════════ LEGEND ═══════════ */
 .legend {
