@@ -94,8 +94,8 @@ function getMilestoneInfo(day, primary, secondary, chemoEndDate) {
   return hits;
 }
 
-const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-const DOW_FULL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const VIEW_LABELS = { 1: '1 Month', 2: '2 Months', 3: '3 Months' };
 
 export default function CalendarView({
   primary,
@@ -183,7 +183,7 @@ export default function CalendarView({
                 className={`cal-view-btn${viewMonths === n ? ' active' : ''}`}
                 onClick={() => setViewMonths(n)}
               >
-                {n}
+                {VIEW_LABELS[n]}
               </button>
             ))}
           </div>
@@ -236,7 +236,7 @@ function MonthGrid({
       <div className="cal-month-name">{format(monthStart, 'MMMM yyyy')}</div>
       <div className="cal-dow">
         {DOW.map((d, i) => (
-          <div key={i} className={`cal-dow-cell${i === 0 || i === 6 ? ' weekend' : ''}`}>{d}</div>
+          <div key={i} className="cal-dow-cell">{d}</div>
         ))}
       </div>
       <div className="cal-days">
