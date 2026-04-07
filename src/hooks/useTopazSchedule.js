@@ -23,7 +23,7 @@ export const DEFAULT_FORM_STATE = {
   location: 'hal',
   ibcCohort: false,
   simDayPreference: ['Wednesday'],
-  breakDays: 0,
+  chemoBreakDays: 0,
   studyId: '',
   notes: '',
   chemoStartDate: '',
@@ -122,8 +122,8 @@ export function useTopazSchedule(closureDates) {
       simDayPreference: Array.isArray(ins.simDayPreference)
         ? ins.simDayPreference
         : prev.simDayPreference,
-      breakDays:
-        typeof ins.breakDays === 'number' ? ins.breakDays : prev.breakDays,
+      chemoBreakDays:
+        typeof ins.chemoBreakDays === 'number' ? ins.chemoBreakDays : prev.chemoBreakDays,
       studyId: doc.studyId ?? ins.studyId ?? prev.studyId,
       notes: ins.notes ?? doc.notes ?? prev.notes,
       simDate: null,

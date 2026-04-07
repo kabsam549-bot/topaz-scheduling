@@ -177,13 +177,13 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
         </div>
 
         <div className="ifield">
-          <span className="ifield-label">Break days</span>
+          <span className="ifield-label">Chemo break days</span>
           <input
             type="number"
             min={0}
             step={1}
-            value={values.breakDays}
-            onChange={(e) => onChange('breakDays', Number(e.target.value))}
+            value={values.chemoBreakDays}
+            onChange={(e) => onChange('chemoBreakDays', Number(e.target.value))}
           />
         </div>
 
@@ -245,7 +245,7 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
             onChange('boostFractions', 5);
             onChange('location', 'hal');
             onChange('simDayPreference', ['Wednesday']);
-            onChange('breakDays', 0);
+            onChange('chemoBreakDays', 0);
             onChange('studyId', '');
             onChange('notes', '');
           }}

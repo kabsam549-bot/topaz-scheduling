@@ -1,10 +1,9 @@
 /**
  * TOPAz PRD v2 §6 scheduling — deterministic milestones and scenario branching.
  *
- * **Treatment break days (`breakDays`):** After scheduling all but the final fraction, we advance
- * `breakDays` calendar days from the prior fraction date, then place the **last** fraction on the
- * next treatment day (Mon–Fri, not holiday). This lengthens the RT calendar span without adding
- * delivered fractions (PRD §4.4.7 / FR-15).
+ * **Chemo break days (`chemoBreakDays`):** Calendar days added to the last chemo date to account
+ * for treatment breaks during the chemotherapy phase. This shifts the chemo completion anchor
+ * forward, cascading to simulation, RT start, and all downstream milestones.
  *
  * **Surgery windows** match PRD §9 worked example: acceptable = last fraction +10..+35 calendar
  * days; optimal = +17..+26; target = weekday snap of last fraction +21.
@@ -114,10 +113,10 @@ function defaultRtStartFromSim(simDate, ho) {
 }
 
 /**
- * Inserts `breakDays` calendar days immediately before the **last** fraction of the full course
- * (base + boost), then places that last fraction on the next treatment day.
+ * Schedules fraction dates consecutively on treatment days (Mon–Fri, not holiday).
+ * No internal RT break — chemo breaks are handled upstream by shifting chemoEnd.
  */
-function scheduleFractionDates(rtStart, baseFx, boostFx, breakDays, ho) {
+function scheduleFractionDates(rtStart, baseFx, boostFx, ho) {
   const total = baseFx + boostFx;
   if (total <= 0) {
     return {
@@ -131,12 +130,7 @@ function scheduleFractionDates(rtStart, baseFx, boostFx, breakDays, ho) {
   let cursor = nextTreatmentDayOnOrAfter(rtStart, ho);
   dates.push(cursor);
   for (let i = 1; i < total; i += 1) {
-    if (i === total - 1 && breakDays > 0) {
-      cursor = addDays(dates[i - 1], breakDays);
-      cursor = nextTreatmentDayOnOrAfter(cursor, ho);
-    } else {
-      cursor = nextTreatmentDayAfter(dates[i - 1], ho);
-    }
+    cursor = nextTreatmentDayAfter(dates[i - 1], ho);
     dates.push(cursor);
   }
   const baseEnd = dates[baseFx - 1] ?? null;
@@ -182,7 +176,7 @@ function intersectInclusiveRanges(ranges) {
  * @property {'main'|'hal'} [location]
  * @property {boolean} [ibcCohort]
  * @property {number[]|string[]} [simDayPreference]
- * @property {number} [breakDays]
+ * @property {number} [chemoBreakDays]
  * @property {Date|string|null} [simDate]
  * @property {Date|string|null} [rtStartDate]
  * @property {Date[]} [closureDates]
@@ -224,7 +218,12 @@ export function computeSchedule(inputs) {
   let arm = inputs.arm ?? 'not_randomized';
   const boostInput = inputs.boost ?? 'uncertain';
   let boostFx = Math.min(8, Math.max(5, Number(inputs.boostFractions) || 5));
-  const breakDays = Math.max(0, Number(inputs.breakDays) || 0);
+  const chemoBreakDays = Math.max(0, Number(inputs.chemoBreakDays) || 0);
+
+  // Shift chemo end date forward by chemo break days
+  if (chemoBreakDays > 0) {
+    chemoEnd = addDays(chemoEnd, chemoBreakDays);
+  }
   const ibc = !!inputs.ibcCohort;
 
   if (ibc) {
@@ -324,7 +323,6 @@ export function computeSchedule(inputs) {
         rtStart,
         baseFx,
         boostCount,
-        breakDays,
         ho
       );
 
@@ -369,7 +367,7 @@ export function computeSchedule(inputs) {
             boostCount > 0 && boostStartDate
               ? { start: boostStartDate, end: lastDate }
               : null,
-          breakDaysInsertedBeforeLastFraction: breakDays,
+          chemoBreakDays,
         },
       });
     }

@@ -62,7 +62,7 @@ export default function App() {
         location: state.location,
         ibcCohort: state.ibcCohort,
         simDayPreference: state.simDayPreference,
-        breakDays: state.breakDays,
+        chemoBreakDays: state.chemoBreakDays,
         notes: state.notes,
       },
       computed: result ? exportComputedForInputs(result, state) : undefined,

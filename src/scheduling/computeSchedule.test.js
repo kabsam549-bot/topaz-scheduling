@@ -47,7 +47,7 @@ describe('computeSchedule — PRD §9 worked example', () => {
     boostFractions: 5,
     location: 'hal',
     simDayPreference: [3],
-    breakDays: 0,
+    chemoBreakDays: 0,
     neoadjuvantChemo: true,
     treatAsTreatmentDays: ['2026-05-25'],
   };
@@ -129,13 +129,13 @@ describe('computeSchedule — scenarios & IBC', () => {
   });
 });
 
-describe('treatment break days', () => {
-  it('extends calendar span by inserting days before the final fraction', () => {
+describe('chemo break days', () => {
+  it('shifts chemo end forward, cascading to sim, RT, and surgery dates', () => {
     const { scenarios } = computeSchedule({
       chemoEndDate: '2026-04-13',
       arm: 'HF',
       boost: 'no',
-      breakDays: 5,
+      chemoBreakDays: 5,
       location: 'hal',
       simDayPreference: [3],
       treatAsTreatmentDays: ['2026-05-25'],
@@ -145,15 +145,19 @@ describe('treatment break days', () => {
       chemoEndDate: '2026-04-13',
       arm: 'HF',
       boost: 'no',
-      breakDays: 0,
+      chemoBreakDays: 0,
       location: 'hal',
       simDayPreference: [3],
       treatAsTreatmentDays: ['2026-05-25'],
     }).scenarios[0];
-    expect(s.milestones.lastFractionForSurgery.getTime()).toBeGreaterThan(
-      withoutBreak.milestones.lastFractionForSurgery.getTime()
+    // Chemo break shifts everything downstream
+    expect(s.milestones.sim.getTime()).toBeGreaterThan(
+      withoutBreak.milestones.sim.getTime()
     );
-    expect(s.ranges.breakDaysInsertedBeforeLastFraction).toBe(5);
+    expect(s.milestones.rtStart.getTime()).toBeGreaterThan(
+      withoutBreak.milestones.rtStart.getTime()
+    );
+    expect(s.ranges.chemoBreakDays).toBe(5);
   });
 });
 
