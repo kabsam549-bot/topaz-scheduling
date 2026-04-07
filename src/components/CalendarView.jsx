@@ -100,6 +100,7 @@ export default function CalendarView({
   labels = [],
   chemoEndDate,
   onMilestoneDrag,
+  forceViewMonths,
 }) {
   const layers = useMemo(() => buildLayers(primary, secondary), [primary, secondary]);
 
@@ -131,7 +132,8 @@ export default function CalendarView({
     : startOfMonth(new Date());
 
   // Default to 1 month, snapped to surgery
-  const [viewMonths, setViewMonths] = useState(1);
+  const [_viewMonths, setViewMonths] = useState(1);
+  const viewMonths = forceViewMonths ?? _viewMonths;
   const viewOptions = [1, 2, 3];
   const [navMonth, setNavMonth] = useState(null);
 

@@ -49,7 +49,7 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
       </button>
 
       {/* Chemotherapy */}
-      <div className="input-section">
+      <div className="input-section input-section--chemo">
         <h3 className="section-header">Chemotherapy</h3>
 
         <div className="ifield">
@@ -114,10 +114,21 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
             onChange={(e) => onChange('chemoEndDate', e.target.value)}
           />
         </div>
+
+        <div className="ifield">
+          <span className="ifield-label">Chemo break days</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={values.chemoBreakDays}
+            onChange={(e) => onChange('chemoBreakDays', Number(e.target.value))}
+          />
+        </div>
       </div>
 
       {/* Radiation */}
-      <div className="input-section">
+      <div className="input-section input-section--radiation">
         <h3 className="section-header">Radiation</h3>
 
         <div className="ifield">
@@ -155,14 +166,26 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
         <div className="ifield">
           <span className="ifield-label">Location</span>
           <div className="pill-group">
-            <Pill active={values.location === 'main'} onClick={() => onChange('location', 'main')}>Main Campus</Pill>
-            <Pill active={values.location === 'hal'} onClick={() => onChange('location', 'hal')}>HAL</Pill>
+            <Pill active={values.location === 'main'} onClick={() => { onChange('location', 'main'); onChange('dryRunGap', 0); }}>Main Campus</Pill>
+            <Pill active={values.location === 'hal'} onClick={() => { onChange('location', 'hal'); onChange('dryRunGap', 1); }}>HAL</Pill>
           </div>
+        </div>
+
+        <div className="ifield">
+          <span className="ifield-label">Dry run gap (business days)</span>
+          <input
+            type="number"
+            min={0}
+            max={5}
+            step={1}
+            value={values.dryRunGap}
+            onChange={(e) => onChange('dryRunGap', Number(e.target.value))}
+          />
         </div>
       </div>
 
       {/* Settings */}
-      <div className="input-section">
+      <div className="input-section input-section--settings">
         <h3 className="section-header">Settings</h3>
 
         <div className="ifield">
@@ -174,17 +197,6 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
               </Pill>
             ))}
           </div>
-        </div>
-
-        <div className="ifield">
-          <span className="ifield-label">Chemo break days</span>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={values.chemoBreakDays}
-            onChange={(e) => onChange('chemoBreakDays', Number(e.target.value))}
-          />
         </div>
 
         <button
@@ -246,6 +258,7 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
             onChange('location', 'hal');
             onChange('simDayPreference', ['Wednesday']);
             onChange('chemoBreakDays', 0);
+            onChange('dryRunGap', 1);
             onChange('studyId', '');
             onChange('notes', '');
           }}

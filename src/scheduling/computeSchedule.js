@@ -177,6 +177,7 @@ function intersectInclusiveRanges(ranges) {
  * @property {boolean} [ibcCohort]
  * @property {number[]|string[]} [simDayPreference]
  * @property {number} [chemoBreakDays]
+ * @property {number} [dryRunGap]
  * @property {Date|string|null} [simDate]
  * @property {Date|string|null} [rtStartDate]
  * @property {Date[]} [closureDates]
@@ -283,10 +284,11 @@ export function computeSchedule(inputs) {
     });
   }
 
-  const dryRun =
-    location === 'hal'
-      ? subtractBusinessDays(rtStart, 1, { holidays: ho })
-      : rtStart;
+  const rawGap = inputs.dryRunGap != null ? Number(inputs.dryRunGap) : (location === 'hal' ? 1 : 0);
+  const dryRunGap = Math.max(0, isNaN(rawGap) ? (location === 'hal' ? 1 : 0) : rawGap);
+  const dryRun = dryRunGap > 0
+    ? subtractBusinessDays(rtStart, dryRunGap, { holidays: ho })
+    : rtStart;
 
   const armsToRun =
     ibc || arm === 'CF'

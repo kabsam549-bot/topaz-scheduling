@@ -46,7 +46,7 @@ export const DEFAULT_SETTINGS = {
   holidays: [...DEFAULT_HOLIDAYS],
 };
 
-export default function SettingsModal({ open, onClose, settings, onSettingsChange }) {
+export default function SettingsModal({ open, onClose, settings, onSettingsChange, onOpenAdmin }) {
   const [tab, setTab] = useState(0);
   const overlayRef = useRef(null);
   const [newHolidayName, setNewHolidayName] = useState('');
@@ -118,6 +118,14 @@ export default function SettingsModal({ open, onClose, settings, onSettingsChang
         {/* Header */}
         <div className="settings-header">
           <h2 className="settings-title">Settings</h2>
+          <button
+            type="button"
+            className="admin-btn"
+            style={{ marginLeft: 'auto', marginRight: '0.75rem', fontSize: '0.72rem', padding: '0.3rem 0.75rem' }}
+            onClick={() => { onClose(); onOpenAdmin?.(); }}
+          >
+            Admin Panel
+          </button>
           <button type="button" className="settings-close" onClick={onClose} title="Close">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />

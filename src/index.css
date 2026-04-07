@@ -134,13 +134,18 @@ body { margin: 0; min-height: 100vh; }
 .input-section {
   border-bottom: 1px solid var(--border-light);
   padding: 1.125rem 1.25rem;
+  border-left: 3px solid transparent;
 }
 
 .input-section:last-child { border-bottom: none; }
 
+.input-section--chemo { border-left-color: #a855f7; background: rgba(168,85,247,0.02); }
+.input-section--radiation { border-left-color: #3b82f6; background: rgba(59,130,246,0.02); }
+.input-section--settings { border-left-color: var(--border); }
+
 .section-header {
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: 0.74rem;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1218,4 +1223,127 @@ body { margin: 0; min-height: 100vh; }
   .holiday-add-form input {
     width: 100%;
   }
+}
+
+/* ═══════════ PRINT / EXPORT ═══════════ */
+@media print {
+  .input-sidebar, .header, .sidebar-toggle, .top-bar,
+  .cal-view-toggle, .cal-today, .export-meta,
+  .more-btn, .reset-btn { display: none !important; }
+  .main-layout { display: block !important; }
+  .main-content { padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+  .cal-panel { box-shadow: none !important; border: 1px solid #ddd; }
+  .legend { box-shadow: none !important; }
+  body { background: #fff; }
+}
+
+.print-mode .input-sidebar,
+.print-mode .top-bar,
+.print-mode .sidebar-toggle,
+.print-mode .cal-view-toggle,
+.print-mode .cal-today,
+.print-mode .export-meta { display: none !important; }
+.print-mode .main-content { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+.print-mode .main-layout { display: block !important; }
+.print-mode .cal-panel { box-shadow: none !important; }
+
+/* ═══════════ ADMIN PANEL ═══════════ */
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-panel {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  width: min(95vw, 900px);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 1;
+}
+.admin-header h2 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+.admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.75rem 1.5rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.admin-tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.admin-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.admin-body { padding: 1.25rem 1.5rem; }
+.admin-section { margin-bottom: 1.5rem; }
+.admin-section h3 { font-size: 0.85rem; font-weight: 600; margin: 0 0 0.75rem; color: var(--fg); }
+
+.regimen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.regimen-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.regimen-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.regimen-table input {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.admin-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+.admin-btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+.admin-btn--primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }

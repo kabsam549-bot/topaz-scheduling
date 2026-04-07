@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import LandingPage from './components/LandingPage.jsx';
@@ -8,6 +9,7 @@ import CalendarView from './components/CalendarView.jsx';
 import SummaryTable from './components/SummaryTable.jsx';
 import Legend from './components/Legend.jsx';
 import SettingsModal, { DEFAULT_SETTINGS } from './components/SettingsModal.jsx';
+import AdminPanel from './components/AdminPanel.jsx';
 import { useTopazSchedule } from './hooks/useTopazSchedule.js';
 import {
   buildArmsAndBoostScenarios,
@@ -25,6 +27,8 @@ export default function App() {
   const [importError, setImportError] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [printMode, setPrintMode] = useState(false);
   const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS }));
 
   // Convert holiday date strings to Date objects for closureDates
@@ -63,6 +67,7 @@ export default function App() {
         ibcCohort: state.ibcCohort,
         simDayPreference: state.simDayPreference,
         chemoBreakDays: state.chemoBreakDays,
+        dryRunGap: state.dryRunGap,
         notes: state.notes,
       },
       computed: result ? exportComputedForInputs(result, state) : undefined,
@@ -119,7 +124,17 @@ export default function App() {
     const el = document.getElementById('topaz-export-root');
     if (!el) return;
     try {
+      // Switch to 3-month view and print-friendly layout
+      flushSync(() => setPrintMode(true));
+      el.classList.add('print-mode');
+      // Give the DOM a tick to re-render with 3 months
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
       const canvas = await html2canvas(el, { scale: 2, useCORS: true });
+
+      el.classList.remove('print-mode');
+      flushSync(() => setPrintMode(false));
+
       const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
@@ -131,6 +146,8 @@ export default function App() {
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
       pdf.save(`topaz-schedule-${formatStamp()}.pdf`);
     } catch (err) {
+      el?.classList.remove('print-mode');
+      setPrintMode(false);
       setImportError(err?.message || 'PDF export failed.');
     }
   };
@@ -168,6 +185,14 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         settings={settings}
         onSettingsChange={setSettings}
+        onOpenAdmin={() => setAdminOpen(true)}
+      />
+
+      <AdminPanel
+        open={adminOpen}
+        onClose={() => setAdminOpen(false)}
+        settings={settings}
+        onSettingsChange={setSettings}
       />
 
       {computeError && (
@@ -193,6 +218,7 @@ export default function App() {
             labels={view.labels}
             chemoEndDate={state.chemoEndDate}
             onMilestoneDrag={handleMilestoneDrag}
+            forceViewMonths={printMode ? 3 : undefined}
           />
 
           <Legend />
