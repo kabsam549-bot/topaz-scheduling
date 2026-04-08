@@ -41,11 +41,11 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
       setLocalSettings({ ...settings });
       setPwValue('');
       setPwError(false);
-      setSaveResult(null);
     }
     if (!open) {
       setAuthenticated(false);
       setAdminPassword('');
+      setSaveResult(null);
     }
   }, [open, settings]);
 
