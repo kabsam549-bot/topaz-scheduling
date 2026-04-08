@@ -34,7 +34,7 @@ export default function App() {
 
   // Fetch persisted config on mount (overrides hardcoded defaults)
   useEffect(() => {
-    fetch('/config.json?' + Date.now())
+    fetch('/api/config')
       .then((r) => r.ok ? r.json() : null)
       .then((cfg) => {
         if (cfg) {
