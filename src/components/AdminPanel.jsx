@@ -2,10 +2,23 @@ import { useState, useEffect } from 'react';
 import { REGIMEN_DATA } from '../scheduling/regimenData.js';
 import { DEFAULT_SETTINGS } from './SettingsModal.jsx';
 
+const EXPECTED = '706e41';
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return (h >>> 0).toString(16).slice(-6);
+}
+
 const ADMIN_TABS = ['Scheduling Rules', 'Holidays', 'Regimens'];
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export default function AdminPanel({ open, onClose, settings, onSettingsChange }) {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [pwValue, setPwValue] = useState('');
+  const [pwError, setPwError] = useState(false);
+  const [pwShake, setPwShake] = useState(false);
   const [tab, setTab] = useState(0);
   const [localSettings, setLocalSettings] = useState(() => ({ ...settings }));
   const [regimens, setRegimens] = useState(() =>
@@ -20,10 +33,52 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
   const [newHolidayDate, setNewHolidayDate] = useState('');
 
   useEffect(() => {
-    if (open) setLocalSettings({ ...settings });
+    if (open) {
+      setLocalSettings({ ...settings });
+      setPwValue('');
+      setPwError(false);
+    }
   }, [open, settings]);
 
   if (!open) return null;
+
+  const handlePwSubmit = (e) => {
+    e.preventDefault();
+    if (simpleHash(pwValue) === EXPECTED) {
+      setAuthenticated(true);
+      setPwError(false);
+    } else {
+      setPwError(true);
+      setPwShake(true);
+      setTimeout(() => setPwShake(false), 500);
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="admin-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className={`pw-card${pwShake ? ' pw-shake' : ''}`}>
+          <div className="pw-icon">TOPAz</div>
+          <p className="pw-subtitle">Admin Access</p>
+          <form onSubmit={handlePwSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <label className="pw-label" htmlFor="admin-pw">Enter admin password</label>
+            <input
+              id="admin-pw"
+              className="pw-input"
+              type="password"
+              autoFocus
+              autoComplete="off"
+              placeholder="Password"
+              value={pwValue}
+              onChange={(e) => { setPwValue(e.target.value); setPwError(false); }}
+            />
+            {pwError && <p className="pw-error">Incorrect password</p>}
+            <button className="pw-btn" type="submit">Unlock</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const updateRule = (key, value) => {
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
