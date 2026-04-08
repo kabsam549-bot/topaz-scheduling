@@ -198,8 +198,8 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
   };
 
   const RULES = [
-    { key: 'chemoToSimGap', label: 'Chemo -> Sim gap (days)', min: 1, max: 30 },
-    { key: 'simToRtGap', label: 'Sim -> RT gap (days)', min: 1, max: 30 },
+    { key: 'chemoToSimGap', label: 'Chemo to Sim gap (days)', min: 1, max: 30 },
+    { key: 'simToRtGap', label: 'Sim to RT gap (days)', min: 1, max: 30 },
     { key: 'surgeryAcceptableStart', label: 'Surgery acceptable start (days post-RT)', min: 1, max: 60 },
     { key: 'surgeryAcceptableEnd', label: 'Surgery acceptable end (days post-RT)', min: 1, max: 90 },
     { key: 'surgeryOptimalStart', label: 'Surgery optimal start (days post-RT)', min: 1, max: 60 },
@@ -214,6 +214,19 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
           <h2>Admin Panel</h2>
           <button className="admin-btn" onClick={onClose}>Close</button>
         </div>
+
+        {saveResult && (
+          <div style={{
+            padding: '0.6rem 1.5rem',
+            background: saveResult.ok ? '#f0fdf4' : '#fef2f2',
+            color: saveResult.ok ? '#166534' : '#991b1b',
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            borderBottom: '1px solid ' + (saveResult.ok ? '#bbf7d0' : '#fecaca'),
+          }}>
+            {saveResult.message}
+          </div>
+        )}
 
         <div className="admin-tabs">
           {ADMIN_TABS.map((t, i) => (
@@ -304,7 +317,7 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
                       fontSize: '0.8rem',
                     }}
                   >
-                    <span>{h.name} -- {h.date}</span>
+                    <span>{h.name} &mdash; {h.date}</span>
                     <button
                       className="admin-btn"
                       style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}
@@ -360,7 +373,7 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
                         />
                       </td>
                       <td style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>
-                        {r.phases.map((p) => p.name || p.drug).join(' -> ')}
+                        {r.phases.map((p) => p.name || p.drug).join(' \u2192 ')}
                       </td>
                     </tr>
                   ))}
@@ -369,20 +382,6 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
             </div>
           )}
         </div>
-
-        {/* Status messages */}
-        {saveResult && (
-          <div style={{
-            padding: '0.75rem 1.5rem',
-            background: saveResult.ok ? '#f0fdf4' : '#fef2f2',
-            color: saveResult.ok ? '#166534' : '#991b1b',
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            borderTop: '1px solid ' + (saveResult.ok ? '#bbf7d0' : '#fecaca'),
-          }}>
-            {saveResult.message}
-          </div>
-        )}
 
         <div className="admin-actions">
           <button className="admin-btn" onClick={handleApply} disabled={saving}>

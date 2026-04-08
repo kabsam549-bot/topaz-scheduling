@@ -26,6 +26,7 @@ function Pill({ active, onClick, children }) {
 export default function InputPanel({ values, onChange, warnings = [] }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
+  const [resetConfirm, setResetConfirm] = useState(false);
   const simSet = new Set(values.simDayPreference || []);
   const showBoostFx = values.boost === 'yes';
 
@@ -247,25 +248,41 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
         <button
           type="button"
           className="reset-btn"
-          onClick={() => {
-            onChange('chemoEndDate', '');
-            onChange('chemoStartDate', '');
-            onChange('chemoRegimen', 'dd-AC + wkly Taxol');
-            onChange('neoadjuvantChemo', true);
-            onChange('arm', 'not_randomized');
-            onChange('boost', 'uncertain');
-            onChange('boostFractions', 5);
-            onChange('location', 'hal');
-            onChange('simDayPreference', ['Wednesday']);
-            onChange('chemoBreakDays', 0);
-            onChange('dryRunGap', 1);
-            onChange('studyId', '');
-            onChange('notes', '');
-          }}
+          onClick={() => setResetConfirm(true)}
         >
           Reset All
         </button>
       </div>
+
+      {resetConfirm && (
+        <div className="admin-overlay" style={{ zIndex: 300 }} onClick={(e) => { if (e.target === e.currentTarget) setResetConfirm(false); }}>
+          <div className="pw-card" style={{ gap: '1rem' }}>
+            <div className="pw-icon" style={{ fontSize: '1.2rem' }}>Reset All Fields?</div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-sec)' }}>
+              This will clear all inputs and return them to default values. Are you sure?
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button className="admin-btn" onClick={() => setResetConfirm(false)}>Cancel</button>
+              <button className="pw-btn" style={{ padding: '0.5rem 1.5rem' }} onClick={() => {
+                onChange('chemoEndDate', '');
+                onChange('chemoStartDate', '');
+                onChange('chemoRegimen', 'dd-AC + wkly Taxol');
+                onChange('neoadjuvantChemo', true);
+                onChange('arm', 'not_randomized');
+                onChange('boost', 'uncertain');
+                onChange('boostFractions', 5);
+                onChange('location', 'hal');
+                onChange('simDayPreference', ['Wednesday']);
+                onChange('chemoBreakDays', 0);
+                onChange('dryRunGap', 1);
+                onChange('studyId', '');
+                onChange('notes', '');
+                setResetConfirm(false);
+              }}>Yes, Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
