@@ -11,7 +11,7 @@
     "treatmentDays": {
       "Mon": true,
       "Tue": true,
-      "Wed": true,
+      "Wed": false,
       "Thu": true,
       "Fri": true
     },
