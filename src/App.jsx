@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -30,6 +30,24 @@ export default function App() {
   const [adminOpen, setAdminOpen] = useState(false);
   const [printMode, setPrintMode] = useState(false);
   const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS }));
+  const [configLoaded, setConfigLoaded] = useState(false);
+
+  // Fetch persisted config on mount (overrides hardcoded defaults)
+  useEffect(() => {
+    fetch('/config.json?' + Date.now())
+      .then((r) => r.ok ? r.json() : null)
+      .then((cfg) => {
+        if (cfg) {
+          setSettings((prev) => ({
+            ...prev,
+            ...(cfg.schedulingRules || {}),
+            holidays: cfg.holidays || prev.holidays,
+          }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setConfigLoaded(true));
+  }, []);
 
   // Convert holiday date strings to Date objects for closureDates
   const closureDates = useMemo(

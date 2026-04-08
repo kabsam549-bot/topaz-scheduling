@@ -16,6 +16,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export default function AdminPanel({ open, onClose, settings, onSettingsChange }) {
   const [authenticated, setAuthenticated] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   const [pwValue, setPwValue] = useState('');
   const [pwError, setPwError] = useState(false);
   const [pwShake, setPwShake] = useState(false);
@@ -31,12 +32,20 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
   );
   const [newHolidayName, setNewHolidayName] = useState('');
   const [newHolidayDate, setNewHolidayDate] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState(null); // { ok, message }
 
   useEffect(() => {
     if (open) {
       setLocalSettings({ ...settings });
       setPwValue('');
       setPwError(false);
+      setSaveResult(null);
+    }
+    if (!open) {
+      setAuthenticated(false);
+      setAdminPassword('');
     }
   }, [open, settings]);
 
@@ -46,6 +55,7 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
     e.preventDefault();
     if (simpleHash(pwValue) === EXPECTED) {
       setAuthenticated(true);
+      setAdminPassword(pwValue);
       setPwError(false);
     } else {
       setPwError(true);
@@ -84,10 +94,6 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const applySettings = () => {
-    onSettingsChange(localSettings);
-  };
-
   const addHoliday = () => {
     if (!newHolidayName.trim() || !newHolidayDate) return;
     const next = {
@@ -107,6 +113,53 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
       ...prev,
       holidays: prev.holidays.filter((_, i) => i !== idx),
     }));
+  };
+
+  const handleApply = () => {
+    setSaveResult(null);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmApply = async () => {
+    setConfirmOpen(false);
+    setSaving(true);
+    setSaveResult(null);
+
+    const config = {
+      version: '1.0.0',
+      schedulingRules: {
+        chemoToSimGap: localSettings.chemoToSimGap,
+        simToRtGap: localSettings.simToRtGap,
+        surgeryAcceptableStart: localSettings.surgeryAcceptableStart,
+        surgeryAcceptableEnd: localSettings.surgeryAcceptableEnd,
+        surgeryOptimalStart: localSettings.surgeryOptimalStart,
+        surgeryOptimalEnd: localSettings.surgeryOptimalEnd,
+        surgeryTarget: localSettings.surgeryTarget,
+        treatmentDays: localSettings.treatmentDays,
+        allowSaturday: localSettings.allowSaturday,
+        allowSunday: localSettings.allowSunday,
+      },
+      holidays: localSettings.holidays,
+    };
+
+    try {
+      const res = await fetch('/api/update-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config, password: adminPassword }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        onSettingsChange(localSettings);
+        setSaveResult({ ok: true, message: 'Settings saved. App will redeploy in ~30 seconds.' });
+      } else {
+        setSaveResult({ ok: false, message: data.error || 'Failed to save settings.' });
+      }
+    } catch (err) {
+      setSaveResult({ ok: false, message: 'Network error. Could not reach server.' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const exportConfig = () => {
@@ -145,8 +198,8 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
   };
 
   const RULES = [
-    { key: 'chemoToSimGap', label: 'Chemo → Sim gap (days)', min: 1, max: 30 },
-    { key: 'simToRtGap', label: 'Sim → RT gap (days)', min: 1, max: 30 },
+    { key: 'chemoToSimGap', label: 'Chemo -> Sim gap (days)', min: 1, max: 30 },
+    { key: 'simToRtGap', label: 'Sim -> RT gap (days)', min: 1, max: 30 },
     { key: 'surgeryAcceptableStart', label: 'Surgery acceptable start (days post-RT)', min: 1, max: 60 },
     { key: 'surgeryAcceptableEnd', label: 'Surgery acceptable end (days post-RT)', min: 1, max: 90 },
     { key: 'surgeryOptimalStart', label: 'Surgery optimal start (days post-RT)', min: 1, max: 60 },
@@ -251,7 +304,7 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
                       fontSize: '0.8rem',
                     }}
                   >
-                    <span>{h.name} — {h.date}</span>
+                    <span>{h.name} -- {h.date}</span>
                     <button
                       className="admin-btn"
                       style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}
@@ -307,7 +360,7 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
                         />
                       </td>
                       <td style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>
-                        {r.phases.map((p) => p.name || p.drug).join(' → ')}
+                        {r.phases.map((p) => p.name || p.drug).join(' -> ')}
                       </td>
                     </tr>
                   ))}
@@ -317,13 +370,45 @@ export default function AdminPanel({ open, onClose, settings, onSettingsChange }
           )}
         </div>
 
+        {/* Status messages */}
+        {saveResult && (
+          <div style={{
+            padding: '0.75rem 1.5rem',
+            background: saveResult.ok ? '#f0fdf4' : '#fef2f2',
+            color: saveResult.ok ? '#166534' : '#991b1b',
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            borderTop: '1px solid ' + (saveResult.ok ? '#bbf7d0' : '#fecaca'),
+          }}>
+            {saveResult.message}
+          </div>
+        )}
+
         <div className="admin-actions">
-          <button className="admin-btn" onClick={applySettings}>Apply Settings</button>
+          <button className="admin-btn" onClick={handleApply} disabled={saving}>
+            {saving ? 'Saving...' : 'Apply Settings'}
+          </button>
           <button className="admin-btn admin-btn--primary" onClick={exportConfig}>
             Export Config
           </button>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmOpen && (
+        <div className="admin-overlay" style={{ zIndex: 300 }} onClick={(e) => { if (e.target === e.currentTarget) setConfirmOpen(false); }}>
+          <div className="pw-card" style={{ gap: '1rem' }}>
+            <div className="pw-icon" style={{ fontSize: '1.2rem' }}>Confirm Changes</div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-sec)' }}>
+              This will update the live app config for <strong>all users</strong>. The app will redeploy automatically. Are you sure?
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button className="admin-btn" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <button className="pw-btn" style={{ padding: '0.5rem 1.5rem' }} onClick={handleConfirmApply}>Yes, Apply</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
