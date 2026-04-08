@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import PasswordGate from './components/PasswordGate.jsx';
 import LandingPage from './components/LandingPage.jsx';
 import TopBar from './components/TopBar.jsx';
 import InputPanel from './components/InputPanel.jsx';
@@ -24,6 +25,7 @@ function formatStamp() {
 
 export default function App() {
   const fileInputRef = useRef(null);
+  const [unlocked, setUnlocked] = useState(false);
   const [importError, setImportError] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -151,6 +153,10 @@ export default function App() {
       setImportError(err?.message || 'PDF export failed.');
     }
   };
+
+  if (!unlocked) {
+    return <PasswordGate onUnlock={() => setUnlocked(true)} />;
+  }
 
   if (showLanding) {
     return (
