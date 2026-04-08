@@ -1,3 +1,123 @@
 {
-  "version": "test"
+  "version": "1.0.0",
+  "schedulingRules": {
+    "chemoToSimGap": 7,
+    "simToRtGap": 7,
+    "surgeryAcceptableStart": 10,
+    "surgeryAcceptableEnd": 35,
+    "surgeryOptimalStart": 16,
+    "surgeryOptimalEnd": 25,
+    "surgeryTarget": 21,
+    "treatmentDays": {
+      "Mon": true,
+      "Tue": true,
+      "Wed": true,
+      "Thu": true,
+      "Fri": true
+    },
+    "allowSaturday": false,
+    "allowSunday": false
+  },
+  "holidays": [
+    {
+      "name": "New Year's Day",
+      "date": "2026-01-01",
+      "tag": "National"
+    },
+    {
+      "name": "MLK Day",
+      "date": "2026-01-19",
+      "tag": "National"
+    },
+    {
+      "name": "Presidents' Day",
+      "date": "2026-02-16",
+      "tag": "National"
+    },
+    {
+      "name": "Memorial Day",
+      "date": "2026-05-25",
+      "tag": "National"
+    },
+    {
+      "name": "Juneteenth",
+      "date": "2026-06-19",
+      "tag": "National"
+    },
+    {
+      "name": "Independence Day",
+      "date": "2026-07-03",
+      "tag": "National"
+    },
+    {
+      "name": "Labor Day",
+      "date": "2026-09-07",
+      "tag": "National"
+    },
+    {
+      "name": "Veterans Day",
+      "date": "2026-11-11",
+      "tag": "National"
+    },
+    {
+      "name": "Thanksgiving",
+      "date": "2026-11-26",
+      "tag": "National"
+    },
+    {
+      "name": "Christmas Day",
+      "date": "2026-12-25",
+      "tag": "National"
+    },
+    {
+      "name": "New Year's Day",
+      "date": "2027-01-01",
+      "tag": "National"
+    },
+    {
+      "name": "MLK Day",
+      "date": "2027-01-18",
+      "tag": "National"
+    },
+    {
+      "name": "Presidents' Day",
+      "date": "2027-02-15",
+      "tag": "National"
+    },
+    {
+      "name": "Memorial Day",
+      "date": "2027-05-31",
+      "tag": "National"
+    },
+    {
+      "name": "Juneteenth",
+      "date": "2027-06-18",
+      "tag": "National"
+    },
+    {
+      "name": "Independence Day",
+      "date": "2027-07-05",
+      "tag": "National"
+    },
+    {
+      "name": "Labor Day",
+      "date": "2027-09-06",
+      "tag": "National"
+    },
+    {
+      "name": "Veterans Day",
+      "date": "2027-11-11",
+      "tag": "National"
+    },
+    {
+      "name": "Thanksgiving",
+      "date": "2027-11-25",
+      "tag": "National"
+    },
+    {
+      "name": "Christmas Day",
+      "date": "2027-12-24",
+      "tag": "National"
+    }
+  ]
 }
