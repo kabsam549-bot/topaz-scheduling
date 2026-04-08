@@ -30,11 +30,6 @@
       "tag": "National"
     },
     {
-      "name": "Presidents' Day",
-      "date": "2026-02-16",
-      "tag": "National"
-    },
-    {
       "name": "Memorial Day",
       "date": "2026-05-25",
       "tag": "National"
@@ -52,6 +47,11 @@
     {
       "name": "Labor Day",
       "date": "2026-09-07",
+      "tag": "National"
+    },
+    {
+      "name": "Columbus Day",
+      "date": "2026-10-12",
       "tag": "National"
     },
     {
@@ -102,6 +102,11 @@
     {
       "name": "Labor Day",
       "date": "2027-09-06",
+      "tag": "National"
+    },
+    {
+      "name": "Columbus Day",
+      "date": "2027-10-11",
       "tag": "National"
     },
     {
