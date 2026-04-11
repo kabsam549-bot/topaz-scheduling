@@ -84,6 +84,25 @@ export default function App() {
     window.location.reload();
   }, []);
 
+  // Convert holiday date strings to Date objects for closureDates
+  const closureDates = useMemo(
+    () => settings.holidays.map((h) => new Date(h.date + 'T00:00:00')),
+    [settings.holidays]
+  );
+
+  const {
+    state,
+    setField,
+    result,
+    computeError,
+    warnings,
+    displayToggles,
+    setDisplayToggle,
+    view,
+    applyImportedJson,
+    handleMilestoneDrag,
+  } = useTopazSchedule(closureDates);
+
   // Global keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
@@ -128,25 +147,6 @@ export default function App() {
     return () => document.removeEventListener('keydown', handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [helpOpen, settingsOpen, adminOpen, view?.primary, handleOpenHelp, handleNewSchedule]);
-
-  // Convert holiday date strings to Date objects for closureDates
-  const closureDates = useMemo(
-    () => settings.holidays.map((h) => new Date(h.date + 'T00:00:00')),
-    [settings.holidays]
-  );
-
-  const {
-    state,
-    setField,
-    result,
-    computeError,
-    warnings,
-    displayToggles,
-    setDisplayToggle,
-    view,
-    applyImportedJson,
-    handleMilestoneDrag,
-  } = useTopazSchedule(closureDates);
 
   const buildExportDoc = useCallback(() => {
     const snap = result ? buildArmsAndBoostScenarios(result) : null;
