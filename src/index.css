@@ -1590,3 +1590,128 @@ body { margin: 0; min-height: 100vh; }
   40%, 80% { transform: translateX(6px); }
 }
 .pw-shake { animation: pw-shake-anim 0.4s ease; }
+
+/* ═══════════ COMPLIANCE BANNER ═══════════ */
+.compliance-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1.1rem;
+  margin: 0 0 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: default;
+  transition: background 0.12s, border-color 0.12s, transform 0.06s;
+}
+button.compliance-banner { cursor: pointer; }
+button.compliance-banner:hover { transform: translateY(-1px); }
+button.compliance-banner:active { transform: translateY(0); }
+
+.compliance-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+.compliance-message {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.compliance-detail {
+  font-size: 0.78rem;
+  color: var(--text-sec);
+  line-height: 1.45;
+}
+
+.compliance-ok {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.compliance-ok .compliance-message { color: #15803d; }
+
+.compliance-warn {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+.compliance-warn .compliance-message { color: #b45309; }
+
+.compliance-error {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+.compliance-error .compliance-message { color: #b91c1c; }
+
+.compliance-pending {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.compliance-pending .compliance-message { color: var(--muted); }
+
+/* ═══════════ PRINT FOOTER (signed artifact) ═══════════ */
+.print-footer {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 0.9rem 1rem;
+  border-top: 2px solid var(--primary);
+  font-size: 0.72rem;
+  color: var(--text-sec);
+  line-height: 1.5;
+  background: var(--bg);
+}
+.print-mode .print-footer,
+.print-footer[data-force] {
+  display: block;
+}
+.print-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+.print-footer-key {
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  margin-right: 0.15rem;
+}
+.print-footer-sep { color: #d1d5db; }
+.print-footer-note {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ═══════════ BROWSER PRINT (cmd-P) ═══════════ */
+@media print {
+  body { background: #fff; }
+  .header,
+  .protocol-lockup,
+  .input-sidebar,
+  .header-btn,
+  .menu-wrapper,
+  .dropdown-menu,
+  .settings-overlay,
+  .admin-overlay,
+  .help-overlay,
+  .reset-btn,
+  .sidebar-toggle {
+    display: none !important;
+  }
+  .main-layout { display: block !important; }
+  .main-content { padding: 0.5rem !important; }
+  .print-footer { display: block !important; }
+  .compliance-banner { break-inside: avoid; }
+  .tl-wrap { break-inside: avoid; }
+  @page { size: letter; margin: 0.5in; }
+}

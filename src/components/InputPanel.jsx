@@ -135,9 +135,9 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
         <div className="ifield">
           <span className="ifield-label">Arm</span>
           <div className="pill-group">
-            <Pill active={values.arm === 'HF'} onClick={() => onChange('arm', 'HF')}>HF (15fx)</Pill>
-            <Pill active={values.arm === 'CF'} onClick={() => onChange('arm', 'CF')}>CF (25fx)</Pill>
-            <Pill active={values.arm === 'not_randomized'} onClick={() => onChange('arm', 'not_randomized')}>Both</Pill>
+            <Pill active={values.arm === 'HF'} onClick={() => onChange('arm', 'HF')}>15-fraction</Pill>
+            <Pill active={values.arm === 'CF'} onClick={() => onChange('arm', 'CF')}>25-fraction</Pill>
+            <Pill active={values.arm === 'not_randomized'} onClick={() => onChange('arm', 'not_randomized')}>Compare both</Pill>
           </div>
         </div>
 
