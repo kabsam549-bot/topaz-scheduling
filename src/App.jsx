@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import LandingPage from './components/LandingPage.jsx';
 import TopBar from './components/TopBar.jsx';
+import ProtocolLockup from './components/ProtocolLockup.jsx';
+import HelpModal from './components/HelpModal.jsx';
 import InputPanel from './components/InputPanel.jsx';
 import CalendarView from './components/CalendarView.jsx';
 import SummaryTable from './components/SummaryTable.jsx';
@@ -17,6 +18,8 @@ import {
 } from './scheduling';
 
 const TOOL_VERSION = '1.0.0';
+const LS_CLINICIAN = 'topaz-clinician-name';
+const LS_HELP_SEEN = 'topaz-help-seen';
 
 function formatStamp() {
   return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
@@ -25,12 +28,20 @@ function formatStamp() {
 export default function App() {
   const fileInputRef = useRef(null);
   const [importError, setImportError] = useState(null);
-  const [showLanding, setShowLanding] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [printMode, setPrintMode] = useState(false);
   const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS }));
   const [configLoaded, setConfigLoaded] = useState(false);
+  const [rulesVersion, setRulesVersion] = useState(null);
+  const [lastRuleUpdate, setLastRuleUpdate] = useState(null);
+  const [clinicianName, setClinicianName] = useState(() => {
+    try { return localStorage.getItem(LS_CLINICIAN) || ''; } catch { return ''; }
+  });
+  const [helpPulse, setHelpPulse] = useState(() => {
+    try { return !localStorage.getItem(LS_HELP_SEEN); } catch { return false; }
+  });
 
   // Fetch persisted config on mount (overrides hardcoded defaults)
   useEffect(() => {
@@ -43,11 +54,29 @@ export default function App() {
             ...(cfg.schedulingRules || {}),
             holidays: cfg.holidays || prev.holidays,
           }));
+          if (cfg.version) setRulesVersion(cfg.version);
+          if (cfg.lastRuleUpdate) setLastRuleUpdate(cfg.lastRuleUpdate);
         }
       })
       .catch(() => {})
       .finally(() => setConfigLoaded(true));
   }, []);
+
+  const handleClinicianNameChange = useCallback((name) => {
+    setClinicianName(name);
+    try {
+      if (name) localStorage.setItem(LS_CLINICIAN, name);
+      else localStorage.removeItem(LS_CLINICIAN);
+    } catch {}
+  }, []);
+
+  const handleOpenHelp = useCallback(() => {
+    setHelpOpen(true);
+    if (helpPulse) {
+      setHelpPulse(false);
+      try { localStorage.setItem(LS_HELP_SEEN, '1'); } catch {}
+    }
+  }, [helpPulse]);
 
   // Convert holiday date strings to Date objects for closureDates
   const closureDates = useMemo(
@@ -170,14 +199,6 @@ export default function App() {
     }
   };
 
-  if (showLanding) {
-    return (
-      <LandingPage
-        onStart={() => setShowLanding(false)}
-      />
-    );
-  }
-
   return (
     <div className="app-shell">
       <input
@@ -194,8 +215,23 @@ export default function App() {
         onExportJson={onExportJson}
         onExportPdf={onExportPdf}
         disabledPdf={!view.primary}
-        onBack={() => setShowLanding(true)}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenHelp={handleOpenHelp}
+        helpPulse={helpPulse}
+        clinicianName={clinicianName}
+      />
+
+      <ProtocolLockup
+        version={TOOL_VERSION}
+        rulesVersion={rulesVersion}
+        lastRuleUpdate={lastRuleUpdate}
+      />
+
+      <HelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        clinicianName={clinicianName}
+        onClinicianNameChange={handleClinicianNameChange}
       />
 
       <SettingsModal
