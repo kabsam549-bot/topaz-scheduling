@@ -4,6 +4,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import TopBar from './components/TopBar.jsx';
 import LandingPage from './components/LandingPage.jsx';
+import Tour from './components/Tour.jsx';
 import ProtocolLockup from './components/ProtocolLockup.jsx';
 import HelpModal from './components/HelpModal.jsx';
 import InputPanel from './components/InputPanel.jsx';
@@ -33,6 +34,7 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(() => {
     try { return !localStorage.getItem(LS_ONBOARDING); } catch { return false; }
   });
+  const [tourActive, setTourActive] = useState(false);
   const [importError, setImportError] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
@@ -258,6 +260,17 @@ export default function App() {
           try { localStorage.setItem(LS_ONBOARDING, '1'); } catch {}
           setShowLanding(false);
         }}
+        onExplore={() => {
+          // Pre-fill demo data so the calendar is populated during the tour
+          setField('neoadjuvantChemo', true);
+          setField('chemoEndDate', '2026-03-01');
+          setField('arm', 'not_randomized');
+          setField('boost', 'uncertain');
+          try { localStorage.setItem(LS_ONBOARDING, '1'); } catch {}
+          setShowLanding(false);
+          // Start tour after a tick so the main layout is mounted
+          setTimeout(() => setTourActive(true), 80);
+        }}
       />
     );
   }
@@ -376,6 +389,8 @@ export default function App() {
           lastRuleUpdate={lastRuleUpdate}
         />
       </footer>
+
+      <Tour active={tourActive} onDone={() => setTourActive(false)} />
     </div>
   );
 }
