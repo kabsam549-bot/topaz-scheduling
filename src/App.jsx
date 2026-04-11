@@ -293,6 +293,7 @@ export default function App() {
         disabledPdf={!view.primary}
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenHelp={handleOpenHelp}
+        onStartTour={() => setTourActive(true)}
         helpPulse={helpPulse}
         clinicianName={clinicianName}
       />
@@ -302,6 +303,7 @@ export default function App() {
         onClose={() => setHelpOpen(false)}
         clinicianName={clinicianName}
         onClinicianNameChange={handleClinicianNameChange}
+        onStartTour={() => setTourActive(true)}
       />
 
       <SettingsModal

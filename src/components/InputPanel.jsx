@@ -244,7 +244,19 @@ export default function InputPanel({ values, onChange, warnings = [] }) {
         </div>
       )}
 
-      <div className="input-section">
+      <div className="input-section input-section--actions">
+        <button
+          type="button"
+          className="generate-btn"
+          title="Clear manual date overrides and recalculate from inputs"
+          onClick={() => {
+            onChange('simDate', null);
+            onChange('rtStartDate', null);
+            onChange('surgeryTargetOverride', null);
+          }}
+        >
+          Generate
+        </button>
         <button
           type="button"
           className="reset-btn"

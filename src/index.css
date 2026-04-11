@@ -242,6 +242,22 @@ body { margin: 0; min-height: 100vh; }
 }
 .more-btn:hover { background: var(--primary-light); color: var(--primary); }
 
+.input-section--actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.generate-btn {
+  width: 100%;
+  padding: 0.48rem;
+  border: 1px solid var(--primary-border);
+  background: var(--primary-light);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.generate-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
 .reset-btn {
   width: 100%;
   padding: 0.45rem;
@@ -965,6 +981,29 @@ body { margin: 0; min-height: 100vh; }
   min-width: 76px;
 }
 .help-identity-save:hover { background: var(--primary-dark); }
+.help-tour-row {
+  margin-top: 1.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.help-tour-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--primary-border);
+  background: var(--primary-light);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.help-tour-btn:hover { background: var(--primary); color: #fff; }
+
 .help-footnote {
   margin: 1.3rem 0 0;
   padding-top: 0.9rem;

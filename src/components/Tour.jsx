@@ -3,26 +3,44 @@ import { useCallback, useEffect, useState } from 'react';
 const STEPS = [
   {
     selector: '.input-section--chemo',
-    title: 'Chemotherapy',
+    title: '1 · Chemotherapy',
     body: 'Start with the neoadjuvant chemo toggle — Yes adds the protocol-required minimum gap before simulation. Enter the last chemo date; this single date anchors the entire downstream timeline.',
     placement: 'right',
   },
   {
     selector: '.input-section--radiation',
-    title: 'Radiation Arm & Boost',
+    title: '2 · Radiation Arm & Boost',
     body: 'Choose 15-fraction (HF) or 25-fraction (CF), or Compare Both to see both arms side-by-side. Setting Boost to Uncertain shows a conservative merged surgery window that covers both scenarios.',
     placement: 'right',
   },
   {
     selector: '.compliance-banner',
-    title: 'Protocol Compliance',
-    body: 'Updates live as you adjust dates. Green = surgery target in the optimal window (day 16–25 post-RT). Amber = acceptable but outside optimal. Red = outside protocol — review required.',
+    title: '3 · Protocol Compliance',
+    body: 'Updates live. Green = surgery target in the optimal window (day 16–25 post-RT). Amber = acceptable but outside optimal. Red = outside the protocol window — requires review. Click the banner to scroll to the calendar.',
     placement: 'below',
   },
   {
     selector: '.cal-panel',
-    title: 'Treatment Calendar',
-    body: 'Color-coded phases auto-populate once a chemo date is set: chemotherapy, simulation, RT, boost, and surgery windows. Drag the simulation or RT start markers to override dates — milestones update in real time.',
+    title: '4 · Treatment Calendar',
+    body: 'Color-coded phases fill in automatically: chemotherapy (purple), simulation (slate), RT (blue), boost (indigo), and surgery windows (pink optimal, amber acceptable). Each month is shown as a grid.',
+    placement: 'below',
+  },
+  {
+    selector: '.tl-wrap',
+    title: '5 · Timeline',
+    body: 'The horizontal bar at the bottom of the calendar maps every phase as a proportional strip. Drag the Sim or RT start handles to override auto-calculated dates — the compliance banner and surgery windows update in real time. Use Generate to revert to auto-calculated dates.',
+    placement: 'above',
+  },
+  {
+    selector: '[data-tour="settings-btn"]',
+    title: '6 · Settings',
+    body: 'Configure scheduling rules: chemo-to-sim gap, sim-to-RT gap, surgery windows, treatment days, and holidays. Changes apply to the current session and are reflected live in the calendar.',
+    placement: 'below',
+  },
+  {
+    selector: '[data-tour="menu-btn"]',
+    title: '7 · Save & Export',
+    body: 'Save schedule to computer saves a JSON file you can reload later or share. Export printable PDF generates a letter-size one-page schedule stamped with your name, the date, and protocol version — ready to attach to a chart or forward to surgery scheduling.',
     placement: 'below',
   },
 ];
@@ -76,6 +94,9 @@ export default function Tour({ active, onDone }) {
   let cardLeft = rect.right + PAD + 10;
   if (s.placement === 'below') {
     cardTop = rect.bottom + PAD + 10;
+    cardLeft = rect.left;
+  } else if (s.placement === 'above') {
+    cardTop = rect.top - 240 - PAD;
     cardLeft = rect.left;
   }
   // Clamp to viewport

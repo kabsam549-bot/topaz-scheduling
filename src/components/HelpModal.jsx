@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function HelpModal({ open, onClose, clinicianName, onClinicianNameChange }) {
+export default function HelpModal({ open, onClose, clinicianName, onClinicianNameChange, onStartTour }) {
   const [draftName, setDraftName] = useState(clinicianName || '');
   const [saved, setSaved] = useState(false);
 
@@ -112,6 +112,21 @@ export default function HelpModal({ open, onClose, clinicianName, onClinicianNam
               </button>
             </div>
           </section>
+
+          {onStartTour && (
+            <div className="help-tour-row">
+              <button
+                type="button"
+                className="help-tour-btn"
+                onClick={() => { onClose(); setTimeout(() => onStartTour(), 80); }}
+              >
+                Take an interactive tour
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          )}
 
           <p className="help-footnote">
             Questions or issues? Contact Ramez Kouzy, MD (Developer).
