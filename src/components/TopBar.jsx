@@ -118,17 +118,6 @@ export default function TopBar({
                 </button>
               </div>
               <div className="dropdown-divider" />
-              {onStartTour && (
-                <div className="dropdown-section">
-                  <button type="button" className="dropdown-item" onClick={() => { onStartTour(); setMenuOpen(false); }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/>
-                    </svg>
-                    Interactive walkthrough
-                  </button>
-                </div>
-              )}
-              <div className="dropdown-divider" />
               <div className="dropdown-section">
                 <div className="dropdown-label">Scheduling Rules</div>
                 <div className="dropdown-assumptions">

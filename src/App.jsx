@@ -229,13 +229,26 @@ export default function App() {
     const el = document.getElementById('topaz-export-root');
     if (!el) return;
     try {
-      // Switch to 3-month view and print-friendly layout
+      // Switch to 4-month compact view and print-friendly layout
       flushSync(() => setPrintMode(true));
       el.classList.add('print-mode');
-      // Give the DOM a tick to re-render with 3 months
+      // Expand container so html2canvas captures full content including timeline
+      const prevOverflow = el.style.overflow;
+      const prevHeight = el.style.height;
+      const prevMaxHeight = el.style.maxHeight;
+      const prevWidth = el.style.width;
+      el.style.overflow = 'visible';
+      el.style.height = 'auto';
+      el.style.maxHeight = 'none';
+      el.style.width = '920px';
+      // Give the DOM two ticks to re-render with 4 months
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true });
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, scrollY: 0 });
+      el.style.overflow = prevOverflow;
+      el.style.height = prevHeight;
+      el.style.maxHeight = prevMaxHeight;
+      el.style.width = prevWidth;
 
       el.classList.remove('print-mode');
       flushSync(() => setPrintMode(false));
@@ -248,6 +261,7 @@ export default function App() {
       pdf.save(`topaz-schedule-${formatStamp()}.pdf`);
     } catch (err) {
       el?.classList.remove('print-mode');
+      el && Object.assign(el.style, { overflow: '', height: '', maxHeight: '', width: '' });
       setPrintMode(false);
       setImportError(err?.message || 'PDF export failed.');
     }
@@ -352,7 +366,7 @@ export default function App() {
             labels={view.labels}
             chemoEndDate={state.chemoEndDate}
             onMilestoneDrag={handleMilestoneDrag}
-            forceViewMonths={printMode ? 3 : undefined}
+            forceViewMonths={printMode ? 4 : undefined}
           />
 
           <Legend />
