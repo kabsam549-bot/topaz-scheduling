@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import TopBar from './components/TopBar.jsx';
+import LandingPage from './components/LandingPage.jsx';
 import ProtocolLockup from './components/ProtocolLockup.jsx';
 import HelpModal from './components/HelpModal.jsx';
 import InputPanel from './components/InputPanel.jsx';
@@ -21,6 +22,7 @@ import {
 const TOOL_VERSION = '1.0.0';
 const LS_CLINICIAN = 'topaz-clinician-name';
 const LS_HELP_SEEN = 'topaz-help-seen';
+const LS_ONBOARDING = 'topaz-onboarding-done';
 
 function formatStamp() {
   return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
@@ -28,6 +30,9 @@ function formatStamp() {
 
 export default function App() {
   const fileInputRef = useRef(null);
+  const [showLanding, setShowLanding] = useState(() => {
+    try { return !localStorage.getItem(LS_ONBOARDING); } catch { return false; }
+  });
   const [importError, setImportError] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
@@ -235,12 +240,8 @@ export default function App() {
 
       const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
       const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = pageW;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      const ratio = Math.min(pageW / imgW, pageH / imgH);
-      const w = imgW * ratio;
-      const h = imgH * ratio;
+      const w = pageW;
+      const h = (canvas.height * w) / canvas.width;
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
       pdf.save(`topaz-schedule-${formatStamp()}.pdf`);
     } catch (err) {
@@ -249,6 +250,17 @@ export default function App() {
       setImportError(err?.message || 'PDF export failed.');
     }
   };
+
+  if (showLanding) {
+    return (
+      <LandingPage
+        onStart={() => {
+          try { localStorage.setItem(LS_ONBOARDING, '1'); } catch {}
+          setShowLanding(false);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -270,12 +282,6 @@ export default function App() {
         onOpenHelp={handleOpenHelp}
         helpPulse={helpPulse}
         clinicianName={clinicianName}
-      />
-
-      <ProtocolLockup
-        version={TOOL_VERSION}
-        rulesVersion={rulesVersion}
-        lastRuleUpdate={lastRuleUpdate}
       />
 
       <HelpModal
@@ -362,6 +368,14 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      <footer className="app-footer">
+        <ProtocolLockup
+          version={TOOL_VERSION}
+          rulesVersion={rulesVersion}
+          lastRuleUpdate={lastRuleUpdate}
+        />
+      </footer>
     </div>
   );
 }

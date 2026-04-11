@@ -1692,10 +1692,158 @@ button.compliance-banner:active { transform: translateY(0); }
   font-style: italic;
 }
 
+/* ═══════════ APP FOOTER ═══════════ */
+.app-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* ═══════════ LANDING PAGE ═══════════ */
+.landing-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  padding: 2rem 1rem;
+}
+
+.landing-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 680px;
+  width: 100%;
+  padding: 2.5rem 2.75rem;
+}
+
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.landing-logo {
+  width: 48px;
+  height: 48px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.landing-title {
+  margin: 0 0 0.2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.landing-subtitle {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.landing-lede {
+  margin: 0 0 2rem;
+  font-size: 0.9rem;
+  color: var(--text-sec);
+  line-height: 1.65;
+}
+
+.landing-steps {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.landing-step {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.landing-step:last-child { border-bottom: none; }
+
+.landing-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.landing-step-body {
+  flex: 1;
+}
+
+.landing-step-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.landing-step-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.landing-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.landing-cta {
+  padding: 0.7rem 1.75rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.landing-cta:hover { background: var(--primary-dark); }
+
+.landing-disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 520px;
+}
+
 /* ═══════════ BROWSER PRINT (cmd-P) ═══════════ */
 @media print {
   body { background: #fff; }
   .header,
+  .app-footer,
   .protocol-lockup,
   .input-sidebar,
   .header-btn,
